@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeLite_Workspace Name="Daemon" Database="./Daemon/Daemon.tags">
+  <Project Name="Daemon" Path="Daemon/Daemon.project" Active="Yes"/>
+  <BuildMatrix>
+    <WorkspaceConfiguration Name="Debug" Selected="yes">
+      <Project Name="Daemon" ConfigName="Debug"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Release" Selected="no">
+      <Project Name="Daemon" ConfigName="Release"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Debug Lib shared x64" Selected="no">
+      <Project Name="Daemon" ConfigName="Debug Lib shared x64"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Debug OSX" Selected="no">
+      <Project Name="Daemon" ConfigName="Debug OSX"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Debug Valgrind" Selected="no">
+      <Project Name="Daemon" ConfigName="Debug Valgrind"/>
+    </WorkspaceConfiguration>
+  </BuildMatrix>
+</CodeLite_Workspace>

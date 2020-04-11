@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2A6374C8-C45A-4C01-AD5E-AFB5B29997F9}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>daemon</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level1</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_WINDOWS;%(PreprocessorDefinitions);NOMINMAX;_CRT_SECURE_NO_WARNINGS;ASIO_STANDALONE;_WIN32_WINNT=0x0601</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\inc;$(HASHLIBPP)/inc;$(ASIO_DIR)\asio\include;..\Client\inc;..\Client\inc\common;..\Client\res;..\Client\inc\common\ddt\windows;$(LUADIR)\src;$(RE2)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile />
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
+      <StructMemberAlignment>
+      </StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\development\re2\RE2Project\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libRE2x32d.lib;%(AdditionalDependencies);lua-5.2.2.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level1</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_WINDOWS;%(PreprocessorDefinitions);NOMINMAX;_CRT_SECURE_NO_WARNINGS;ASIO_STANDALONE;_WIN32_WINNT=0x0601</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\inc;$(HASHLIBPP)/inc;$(ASIO_DIR)\asio\include;..\Client\inc;..\Client\inc\common;..\Client\res;$(LUADIR)\src;$(RE2)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
+      <StructMemberAlignment>
+      </StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(RE2)\RE2Project\lib;%(AdditionalLibraryDirectories);$(LUADIR)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libRE2x64d.lib;%(AdditionalDependencies);lua-5.2.3_64.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Client\inc\common\ddt\Collected.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\CommonClient.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\CommonDaemon.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\FileManifest.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\FileSystem.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\FileSystem_Windows.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\MessageQueue.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\os_FileSystem.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\sharedDefs.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\VarViewConst.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\DataInputStream.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\DataOutputStream.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\MemoryInputStream.h" />
+    <ClInclude Include="..\Client\inc\common\ddt\MemoryOutputStream.h" />
+    <ClInclude Include="inc\Daemon.h" />
+    <ClInclude Include="inc\ddtLog.h" />
+    <ClInclude Include="inc\LuaGlue.h" />
+    <ClInclude Include="inc\ServerTCP.h" />
+    <ClInclude Include="inc\Stack.h" />
+    <ClInclude Include="inc\VarCollectors.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\hashlibpp-0.3.4\src\hl_md5.cpp" />
+    <ClCompile Include="..\Client\src\common\Collected.cpp" />
+    <ClCompile Include="..\Client\src\common\CommonClient.cpp" />
+    <ClCompile Include="..\Client\src\common\CommonDaemon.cpp" />
+    <ClCompile Include="..\Client\src\common\DataInputStream.cpp" />
+    <ClCompile Include="..\Client\src\common\DataOutputStream.cpp" />
+    <ClCompile Include="..\Client\src\common\DirSystem.cpp" />
+    <ClCompile Include="..\Client\src\common\FileManifest.cpp" />
+    <ClCompile Include="..\Client\src\common\FileSystem.cpp" />
+    <ClCompile Include="..\Client\src\common\FileSystem_Win.cpp" />
+    <ClCompile Include="..\Client\src\common\MessageQueue.cpp" />
+    <ClCompile Include="src\Daemon.cpp" />
+    <ClCompile Include="src\ddtLog.cpp" />
+    <ClCompile Include="src\LoadOverrider.cpp" />
+    <ClCompile Include="src\LuaGlue.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\ServerTCP.cpp" />
+    <ClCompile Include="src\Stack.cpp" />
+    <ClCompile Include="src\VarCollectors.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

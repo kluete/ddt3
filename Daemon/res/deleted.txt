@@ -1,0 +1,2274 @@
+// deleted on Daemon
+
+
+//---- DTOR -------------------------------------------------------------------
+
+	ServerTCP::~ServerTCP()
+{
+	m_IOService.stop();
+}
+
+//---- Tick -------------------------------------------------------------------
+
+string	ServerTCP::Tick(void)
+{
+	m_IOService.reset();
+	
+	do_receive();
+	
+	// "can be called by multiple threads"
+	// "will respond to threads that called run()"
+	// (needs previous/pending op before being called)
+	m_IOService.run();
+	
+	return m_String;
+}
+	
+void	ServerTCP::do_receive()
+{
+	m_Socket.async_receive_from(asio::buffer(m_Data, MAX_MESSAGE_LEN), m_SenderEndpoint/*&*/,
+		[&](error_code ec, size_t sz)
+		{	// callback
+			if (!ec && (sz > 0))
+			{	
+				// echo to client
+				// do_send(sz);
+			}
+			else
+			{	// exception
+				throw runtime_error("couldn't read header");
+			}
+		});
+}
+
+void	ServerTCP::do_send(size_t sz)
+{
+	// theoretically doesn't need to wait for completion ?
+	m_Socket.async_send_to(asio::buffer(m_Data, sz), m_SenderEndpoint,
+		// callback
+		[this](error_code /*ec*/, size_t sz)
+		{	// do_receive();
+		});
+}
+
+-------------------------------------------------------------------------------
+
+// ref-counted non-modifiable buffer
+class shared_const_buffer
+{
+public:
+	explicit shared_const_buffer(const vector<uint8_t> &data)
+		: m_data(new vector<uint8_t>(data.begin(), data.end()))
+		, m_buffer(asio::buffer(*m_data))
+	{
+	}
+
+	// implement ConstBufferSequence requirements
+	typedef asio::const_buffer		value_type;
+	typedef const asio::const_buffer*	const_iterator;
+	const asio::const_buffer*		begin() const { return &m_buffer; }
+	const asio::const_buffer*		end() const { return &m_buffer + 1; }	// points to right iterator?
+
+private:
+
+	shared_ptr<vector<uint8_t>>	m_data;
+	asio::const_buffer		m_buffer;
+};
+
+//---- New Session ------------------------------------------------------------
+
+class Session
+	: public std::enable_shared_from_this<Session>
+{
+public:
+	Session(tcp::socket socket)
+		: m_Socket(std::move(socket))
+	{
+		wxLogMessage("new Session");
+	}
+
+	void	start()
+	{
+		do_read();
+	}
+
+private:
+	void	do_read()
+	{
+		auto	self(shared_from_this());
+		
+		m_Socket.async_read_some(asio::buffer(m_Data, max_length),
+		                        [this, self](std::error_code ec, std::size_t length)
+		{
+			if (!ec)
+			{
+				do_write(length);	// WHAT AM I WRITING?
+			}
+		});
+	}
+
+	void	do_write(std::size_t length)
+	{
+		auto	self(shared_from_this());
+		
+		asio::async_write(m_Socket, asio::buffer(m_Data, length),
+		                  [this, self](std::error_code ec, std::size_t /*length*/)
+		{
+			if (!ec)
+			{
+				do_read();
+			}
+		});
+	}
+
+	tcp::socket	m_Socket;
+	enum { max_length = 1024 };
+	char		m_Data[max_length];
+};
+
+//---- Do Accept --------------------------------------------------------------
+
+void	ServerTCP::do_accept()
+{
+	m_Acceptor.async_accept(m_Socket,
+		[this](std::error_code ec)
+	{
+		if (!ec)
+		{
+			std::make_shared<Session>(std::move(m_Socket))->start();
+		}
+
+		do_accept();	// recurses because wait for MULTIPLE clients ?
+	});
+}
+
+//---- Get Buffer Message -----------------------------------------------------
+
+CLIENT_MSG	Daemon::GetBuffMsg(const vector<uint8_t> &org_buff) const
+{
+	assert(org_buff.size() >= 4);
+	
+	// peek 4 bytes
+	uint32_t	peek32 = 0;
+	
+	peek32 |= (org_buff[0] << 24) | (org_buff[1] << 16) | (org_buff[2] << 8) | (org_buff[3]);
+	
+	CLIENT_MSG	msg_t = static_cast<CLIENT_MSG>(peek32);
+	
+	return msg_t;
+}
+
+-------------------------------------------------------------------------------
+
+	
+	// overload
+	void	PokeLengthHeader(void)
+	{
+		const uint32_t	sz32 = GetLength() - sizeof(uint32_t);
+		const uint32_t	tmp = htobe32(sz32);
+
+		uint32_t	*ptr = (uint32_t*) (&m_Buff[0]);
+		
+		*ptr = tmp;
+	}
+
+//-----------------------------------------------------------------------------
+
+class MemorySink : public dSink
+{
+public:
+	// ctor
+	MemorySink()
+	{
+		m_Buff.clear();
+	}
+	
+	virtual void	put_LL(const uint8_t &c)
+	{
+		m_Buff.push_back(c);
+	}
+	
+	virtual void	write_LL(const uint8_t *p, const size_t &sz)
+	{
+		// store current end index
+		const size_t	it = m_Buff.size();
+		
+		// grow
+		m_Buff.resize(it + sz, 0);
+		
+		// poke data into newly-allocated space
+		::memcpy(&m_Buff[it], p, sz);
+	}
+	
+	virtual size_t	GetLength(void)
+	{
+		return m_Buff.size();
+	}
+	
+	virtual void	Rewind(void)
+	{
+	}
+	
+	virtual void	Flush(void)	{}
+	
+	// new function
+	bool	CloneTo(void *p, const size_t &avail_sz) const
+	{
+		if (!p)				return false;
+		if (avail_sz != GetLength())	return false;
+		
+		::memcpy(p, (const void*) &m_Buff[0], avail_sz);
+		
+		return true;
+	}
+	
+private:
+
+	std::vector<uint8_t>	m_Buff;
+};
+	
+//---- Data Source ABSTRACT (for input) ---------------------------------------
+
+class dSource
+{
+public:
+	// ctor
+	dSource()		{}
+	// dtor
+	virtual ~dSource()	{}
+	
+	virtual bool	IsOk(void) const = 0;
+	virtual uint8_t	get_LL(void) = 0;
+	virtual void	read_LL(uint8_t *p, const size_t &sz) = 0;
+	virtual void	peek_LL(uint8_t *p, const size_t &sz) const = 0;
+	virtual void	Rewind(void) = 0;
+};
+
+//--------------------------------------------------------------------
+
+	// was in unserialize bundle
+	uint32_t	sz = mis.Read32();
+	
+	ofstream	ofs(full_name, ios_base::binary | ios_base::trunc);
+	assert(ofs.good());
+	
+	vector<uint8_t>	buff(sz, 0);
+	
+	mis.ReadBuffer(&buff[0], sz);
+	
+	/*size_t	written = */ofs.write((const char*)&buff[0], sz);
+	// assert(written = sz);
+	ofs.flush();
+	ofs.close();
+
+//--------------------------------------------------------------------
+
+	m_CollectedPropsMap {   { CTYPE_NONE, ( 0, 0 ) },	// don't obsess on var filter, may have better solution
+				{ CTYPE_NIL, ( 0, 0 ) },
+				{ CTYPE_NUMBER, { VAR_VIEW_NUMBERS, 0 } },
+				{ CTYPE_BOOLEAN, { VAR_VIEW_BOOLEANS, 0 } },
+				{ CTYPE_NUMBER, { VAR_VIEW_NUMBERS, 0 } },
+				{ CTYPE_STRING, { VAR_VIEW_STRINGS, 0 } },
+				{ CTYPE_C_FUNCTION, { VAR_VIEW_C_FUNCTIONS, CMASK_COARSE_FUNCTION | CMASK_CONVERT_TO_PTR } },
+				{ CTYPE_LUA_FUNCTION, { VAR_VIEW_LUA_FUNCTIONS, CMASK_COARSE_FUNCTION } },
+				{ CTYPE_TABLE, { VAR_VIEW_TABLES, CMASK_CONVERT_TO_PTR } },
+				{ CTYPE_THREAD, { VAR_VIEW_THREADS, CMASK_CONVERT_TO_PTR } },
+				{ CTYPE_USERDATA, { VAR_VIEW_USERDATA, CMASK_CONVERT_TO_PTR } },
+				{ CTYPE_TEMPORARY, { VAR_VIEW_TEMPORARIES, 0 } }
+			};
+
+//---- Directory Exists ? -----------------------------------------------------
+
+bool	FileName::DirExists(const string &dir_path)
+{
+	return true;
+
+	if (dir_path.empty())	return false;
+
+	bool	f = false;
+
+	#ifdef WIN32
+		
+		string	path;
+
+		HANDLE	hFind = FindFirstFile(&path);		// bad conversion ?
+		f = (hFind != nil);
+		
+		// do something if the file is not "." and not ".."
+		// FindNextFile(...);
+	#else
+
+		DIR	*d = opendir(path.c_str());
+		if (d)
+		{	f = true;
+			closedir(d);
+		}
+	#endif
+
+	return f;
+}
+
+//---- Get fullpath directory part --------------------------------------------
+
+string	FileName::GetFileParentDir(const string &fullpath)
+{
+	string	dir;
+	
+	dir.clear();
+	if (fullpath.empty())		return "";
+
+	const bool	ok = RE2::FullMatch(fullpath, SPLIT_VOL_DIR_FILE_EXT_RE, (void*)0, &dir, (void*)0, (void*)0);
+	assert(ok);
+	
+	return dir;
+}
+
+//---- Split full path into dir/filename parts --------------------------------
+
+const std::string		SPLIT_DIR_AND_FILE_RE		= "^(.*)/(.*)$";
+
+bool	FileName::SplitFullPath(const string &fullpath, string &dir, string &filename)
+{
+	dir.clear();
+	filename.clear();
+	if (fullpath.empty())		return false;
+	
+	const RE2	re(SPLIT_DIR_AND_FILE_RE);
+	assert(re.ok());
+	
+	const bool	ok = RE2::FullMatch(fullpath, re, &dir, &filename);
+	assert(ok);
+	return ok;
+}
+
+//---- Thread Breathe ---------------------------------------------------------
+
+bool	ServerTCP::ThreadBreathe(const int &millisecs)
+{
+	#if 0
+		asio::steady_timer	t(m_IOService, chrono::milliseconds(millisecs));
+		t.wait();
+	#else
+		this_thread::sleep_for(chrono::milliseconds{millisecs});
+	#endif
+	
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+
+int	LuaGlue::loadfile(lua_State *L, const std::string &lua_filename)
+{
+	assert(L);
+	assert(!lua_filename.empty());
+	
+	// if not already in translation map...
+	if (m_ClientToDaemonNameMap.count(lua_filename) == 0)
+	{	// ...add IDENTITY
+		m_ClientToDaemonNameMap[lua_filename] = lua_filename;
+		m_DaemonToClientNameMap[lua_filename] = lua_filename;
+	}
+	
+	int	err = luaL_loadfile(L, lua_filename.c_str());
+	if (err)	uLog("LuaGlue::loadfile(%S) not found or parser error", lua_filename.c_str());
+	
+	return err;
+}
+
+//-----------------------------------------------------------------------------
+
+
+	// ::fprintf(m_File, "%s\n", log_s.c_str());
+	// ::fputs(log_s.c_str(), m_File);
+	// ::fflush(m_File);
+
+//-----------------------------------------------------------------------------
+
+	// make sure is PROTECTED CALL
+	const int	top =  lua_gettop(L);
+	for (int i = 1; i <= top; i++)
+	{
+		const int	typ = lua_type(L, i);
+		const char	*typ_name = lua_typename(L, typ);
+		
+		if (typ == 4)
+		{
+			const char	*s = luaL_checkstring(L, i);
+			
+			uLog(s);
+		}
+		
+		bool	function_f = lua_iscfunction(L, i);
+		if (!function_f)	continue;
+		
+		lua_CFunction	cfn = lua_tocfunction(L, i);
+		bool	f = (cfn == LuaErrFunction);
+		
+		uLog("index %d: cfn \"%s\"", i, f ? "true" : "false");
+	}
+
+	// is MISSING error function
+
+	int	res = 0;
+
+	const int	top =  lua_gettop(L);
+	const int	base = top - nargs;	// function index
+	lua_pushcfunction(L, LuaErrFunction);	// push error handling function
+	lua_insert(L, base);			// put it under chunk and args
+
+	res = lua_pcall(L, nargs, nresults, base/*error function index*/);
+
+	lua_remove(L, base);			// remove error handling function
+
+//---- Check is protected call ------------------------------------------------
+
+static
+void	lg_CallUnknownHookFunction(lua_State *L, lua_Debug *ar)
+{
+	// should SLIDE-IN error function below
+	
+	assert(L);
+	assert(ar);
+	
+	// fill actual debug info (source filename and line#) -- CAPITAL S
+	bool	ok = lua_getinfo(L, "Sl", ar);
+	assert(ok);
+	
+	// don't break on C call (or could still want to inspect the call stack?)
+	if (::strcmp("C", ar->what) == 0)	return;
+	
+	LuaGlue	*lglue = GetLuaGlue(L);
+	
+	lglue->OnDebuggerEntry(L, ENTRY_TYPE::UNKNOWN_FUNCTION_HOOK, ar);
+}
+
+//-----------------------------------------------------------------------------
+
+	case BREAK_TYPE::CALL_UNKNOWN:
+		
+		ok = lua_sethook(L, lg_CallUnknownHookFunction, LUA_MASKCALL, 0);
+		assert(ok);
+		break;
+
+//---- Line Count Hook Function -----------------------------------------------
+
+static
+void	lg_LineCountHookFunction(lua_State *L, lua_Debug *ar)
+{
+	assert(L);
+	assert(ar);
+	
+	// fill actual debug info (source filename and line#) -- CAPITAL S
+	bool	ok = lua_getinfo(L, "Sl", ar);
+	assert(ok);
+	
+	// don't break on C call (or could still want to inspect the call stack?)
+	if (::strcmp("C", ar->what) == 0)	return;
+	
+	LuaGlue	*lglue = GetLuaGlue(L);
+	assert(lglue);
+	
+	lglue->m_ParserLine = ar->currentline;
+	
+	// lglue->OnDebuggerEntry(L, ENTRY_TYPE::HOOK, ar);
+}
+
+//-----------------------------------------------------------------------------
+
+static
+const char *getfuncname (lua_State *L, CallInfo *ci, const char **name);
+
+static
+int	currentpc(CallInfo *ci)
+{
+	lua_assert(isLua(ci));
+	return pcRel(ci->u.l.savedpc, ci_func(ci)->p);
+}
+
+static
+int currentline (CallInfo *ci)
+{
+	return getfuncline(ci_func(ci)->p, currentpc(ci));
+}
+
+	CallInfo	*ci = L->ci;
+	if (isLua(ci))
+	{
+		int	line = currentline(ci);
+		TString *src = ci_func(ci)->p->source;
+	}
+	
+	const string	pattern = string("^([\\d]+):.+$");
+	const bool	ok = RE2::FullMatch(chopsuey, pattern, &ln);
+	
+//--------------------------------------------------------------------
+
+	struct lua_longjmp	*ejump = L->errorJmp;
+	ptrdiff_t		err_stack_index = L->errfunc;		// will be zero if no err handler
+	
+	SetLuaHook(L, BREAK_TYPE::CALL_UNKNOWN);
+		
+//----- do Generic Log ------------------------------------------------
+
+// static
+void	ddtLog::doUserLog(const char *fmt, ...)
+{
+	static
+	char	buff[2048];
+	
+	size_t	len = 0;
+	
+	#ifdef LOG_TIMESTAMP
+	
+		timeval	tv;
+	
+		gettimeofday(&tv, nil);
+	
+		len = strftime(buff, sizeof(buff), "%H:%M:%S:", localtime(&(tv.tv_sec)));
+	
+		len += snprintf(&buff[len], (sizeof(buff) - len), "%03d ", (int)(tv.tv_usec / 1000));
+	#endif
+	
+	va_list	ap;
+	
+	va_start(ap, fmt);
+	
+	vsnprintf(&buff[len], (sizeof(buff) - len), fmt, ap);			// not implemented on Win ?
+	
+	va_end(ap);
+	
+	string	log_s;
+	
+	#ifdef __DDT_IOS__
+		// buffer new line & concat last # entries to simulate scroll on UIView
+		m_Entries.push_back(string(buff));
+		
+		const int	n_entries = m_Entries.size();
+		const int	first_ln = (n_entries > m_LastVisibleLines) ? (n_entries - m_LastVisibleLines) : 0;
+		
+		for (int i = first_ln; i < n_entries; i++)
+		{
+			log_s += m_Entries[i] + "\n";
+		}
+		
+		SetLogView(log_s.c_str());
+	#else
+		// copy directly
+		log_s = string(buff);
+	#endif
+	
+	if (m_OFStream)
+	{	// log to file
+		(*m_OFStream) << log_s << endl << flush;
+	}
+	
+	// and console
+	cerr << log_s << endl << flush;
+}
+
+//---- Send Abort -------------------------------------------------------------
+
+bool	Daemon::SendAbort(void)
+{
+	if (m_SentAbortedFlag)					return true;		// daemon already sent aborted msg
+	if (!m_ServerTCP || !m_ServerTCP->IsConnected())	return false;		// lost connection
+	
+	MemoryOutputStream	mos;
+				
+	mos << DAEMON_MSG::NOTIFY_DAEMON_ABORTED << (uint32_t) 0;
+				
+	bool	ok = SendMessage(mos);
+	// don't check result
+	
+	m_SentAbortedFlag = true;
+	
+	return ok;
+}
+
+//---------------------------------------------------------------------
+
+	// load and parse (1st) lua script - should use require ???
+	// string	wrapper { string("dofile('") + startup.m_Source + string("')") };
+	
+	// do package.path = "./?.lua"
+	lua_getglobal(L, "package");
+	assert(lua_istable(L, -1));
+	lua_pushstring(L, "path");
+	lua_pushstring(L, "./?.lua");
+	lua_rawset(L, -3);
+	lua_pop(L, 1);
+	
+	string	shortname, ext;
+	
+	ok = FileName::SplitFileName(startup.m_Source, shortname/*&*/, ext/*&*/);
+	assert(ok && !shortname.empty());
+	
+	string	wrapper { string("require '" + shortname + "'") };
+	
+	int	err = luaL_loadstring(L, wrapper.c_str());
+	// int	err = daemon.loadfile(L, startup.m_Source);
+	if (err)		goto clean_up;
+
+//--------------------------------------------------------------------
+
+class CwdRAII
+{
+public:
+	// ctor
+	CwdRAII(const std::string &new_cwd);
+	// dtor
+	~CwdRAII();
+	
+	void	Restore(void);
+	
+private:
+	
+	std::string	m_SavedCwd;
+};
+
+	// ctor
+	CwdRAII::CwdRAII(const string &new_cwd)
+{
+	m_SavedCwd = FileName::GetCwd();
+	
+	uLog("CwdRAII::CTOR(old %S, new %S)", m_SavedCwd.c_str(), new_cwd.c_str());
+	
+	bool	ok = FileName::SetCwd(new_cwd);
+	assert(ok);
+}
+
+	CwdRAII::~CwdRAII()
+{
+	Restore();
+}
+	
+void	CwdRAII::Restore(void)
+{
+	if (m_SavedCwd.empty())		return;		// already restored
+	
+	uLog("CwdRAII::Restore(old %S)", m_SavedCwd.c_str());
+	
+	bool	ok = FileName::SetCwd(m_SavedCwd);
+	assert(ok);
+	
+	m_SavedCwd.clear();
+}
+
+//---- Set Lua Overrides ------------------------------------------------------
+
+bool	Daemon::SetLuaOverrides(lua_State *L, const vector<string> &lua_overrides)
+{
+	assert(m_LuaGlue);
+	assert(L);
+	
+	bool	ok = m_LuaGlue->SetLuaOverrides(L, lua_overrides);
+	
+	return ok;
+}
+
+//---- Custom Lua Override ----------------------------------------------------
+
+static
+int	lg_CustomOverride(lua_State *L)
+{
+	LuaGlue	*lglue = GetLuaGlue(L);
+	assert(lglue);
+	
+	// go to lua debugger
+	bool	continue_f = lglue->OnDebuggerEntry(L, ENTRY_TYPE::CUSTOM_VM_OVERRIDE);
+		
+	return 0;
+}
+
+//--------------------------------------------------------------------
+
+	case CLIENT_MSG::PUSH_FILE_BUNDLE:
+	{
+		// sync
+		const string	local_sym = mis.ReadString();
+		uLog("  local_sym \"%s\"", local_sym.c_str());
+		
+		const string	local_path = FileName::Normalize(local_sym);		// naughty or nice?
+		uLog("  local_path \"%s\"", local_path.c_str());
+		
+		const uint32_t	num_files = mis.Read32();
+		bool		sync_f = false;
+		
+		if (!FileName::DirExists(local_path))
+		{
+			sync_f = FileName::MkDir(local_path);
+			if (!sync_f)	goto sync_failed;
+			
+			m_DirGarbage.insert(local_path);
+			
+			m_LastSyncDir = local_path;					// not used yet
+		}
+		
+		for (int i = 0; i < num_files; i++)
+		{
+			string	short_name = mis.ReadString();
+			string	full_path = FileName::MakeFullPath(local_path, short_name);
+			
+			if (!FileName::FileExists(full_path))
+					m_FileGarbage.insert(full_path);
+			
+			uLog(" file [%02d] full_path \"%s\"", i, full_path.c_str());
+		
+			sync_f = FileName::UnserializeFile(mis, full_path);
+			if (!sync_f)	break;
+		}
+	
+sync_failed:
+	
+		MemoryOutputStream	mos;
+		
+		mos << DAEMON_MSG::REPLY_STARTUP_LUA << sync_f;
+		
+		SendMessage(mos);
+	}	break;
+
+//---- Get One Watch ----------------------------------------------------------
+
+void	VarCollectors::GetOneWatch(lua_State *L, const Watch &watch)
+{	
+	assert(L);
+	
+	const int	top = lua_gettop(L);
+	
+	// shouldn't use mask here?
+	const string	var_name = watch.GetTitle();
+	
+	// for composites, all elms except last are tables
+	//   all elms after 2nd are table subkeys
+	
+	// first search in locals (upvalues will be ignored)
+	StringToLocalVarInfoHashMap::iterator	it = s_LocalVarLUT.find(var_name);
+	if (it != s_LocalVarLUT.end())
+	{	// found in locals
+		const LocalVarInfo	vi = it->second;
+		
+		if (vi.m_UpValueFlag)		return;	// ignore if is upvalue ?
+		
+		// creates OWN activation record here
+		lua_Debug	ar;
+		
+		bool	ok = lua_getstack(L, vi.m_StackDepth, &ar);
+		assert(ok);
+		
+		// push variable on the stack (and make sure is the same as the collected one)
+		const char *var_name2 = lua_getlocal(L, &ar, vi.m_Index);			// SP++
+		assert((var_name2 != nil) && (var_name == var_name2));
+			
+		int	visible_level = vi.m_StackDepth;
+		assert(visible_level >= 0);
+		
+		// (had m_ActivationRecord here before)
+		if (CollectNextVariable(L, var_name, "", 0/*indent*/, visible_level))
+		{	// table is at index -1
+			DumpLuaTableRecursive(L, var_name/*path*/, 1/*indent*/);
+		}
+		
+		// remove variable
+		lua_pop(L, 1);
+		
+		// done for this watch
+		return;
+	}
+	
+// try globals
+	lua_getglobal(L, var_name.c_str());							// SP++
+	// lua_rawget(L, globals_table_index);
+	if (!lua_isnil(L, -1)) 
+	{	if (CollectNextVariable(L, var_name, "", 0/*indent*/, DDT_STACK_LEVEL_GLOBALS))
+		{	// recurse
+			DumpLuaTableRecursive(L, var_name/*path*/, 1/*indent*/);
+		}
+		
+		// remove variable
+		lua_pop(L, 1);
+		return;
+	}
+	
+	// remove here even if not found
+	lua_pop(L, 1);
+	
+	#if 0
+	// try registry (makes no)
+	lua_pushstring(L, var_name.c_str());
+	lua_rawget(L, LUA_REGISTRYINDEX);
+	if (!lua_isnil(L, -1))
+	{	const TLUA	typ = LUA_TYPE(L, -1);
+		
+		// remove variable
+		lua_pop(L, 1);
+		return;
+	}
+	#endif
+	
+	// lua_rawget(L, LUA_REGISTRYINDEX);
+	// lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+	
+	// dump NIL without SHOULD BE SHORTER/FASTER
+	CollectNextVariable(L, var_name, "", 0/*indent*/, DDT_STACK_LEVEL_NONE);
+	
+	assert(top == lua_gettop(L));
+}
+
+//--------------------------------------------------------------------
+
+	// fancy recursive _ENV search -- do LATER
+
+// lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+	// const int	globals_table_index = lua_absindex(L, -1);
+	// m_CallStack.m_Levels.size();
+	
+	const string	env = "_ENV";
+	
+	int	top0 = lua_gettop(L);
+	int	top = top0;
+	
+	// look for first _ENV while bubbling back to the surface
+	for (int d = stack_level; d < m_CallStack.m_Levels.size(); d++)
+	{	ok = lua_getstack(L, d, &ar);
+		assert(ok);
+		
+		top = lua_gettop(L);
+		
+		const char	*up_key = lua_getupvalue(L, -1/*funcindex*/, 1/*1st up value*/);
+		if (!up_key)			continue;	// no pop needed?
+		
+		top = lua_gettop(L);
+		
+		if (env.compare(up_key) != 0)
+		{	lua_pop(L, 1);
+			continue;
+		}
+		// is called _ENV, check is a table
+		assert(lua_type(L, -1) == LUA_TTABLE);
+		
+		top = lua_gettop(L);
+		
+		// get var val off this env table
+		lua_pushstring(L, var_name.c_str());
+		lua_rawget(L, -1);
+		if (lua_isnil(L, -1))
+		{	// not found, 
+			top = lua_gettop(L);
+			// pop stack & upvalue
+			lua_pop(L, 2);
+			continue;
+		}
+		
+		top = lua_gettop(L);
+		
+		// found
+		if (CollectNextVariable(L, var_name, "", 0/*indent*/, d))
+		{	// recurse
+			DumpLuaTableRecursive(L, var_name/*path*/, 1/*indent*/);
+		}
+		
+		top = lua_gettop(L);
+		
+		return true;
+	}
+	
+//---- Collect Local Vars & Upvalues Info -------------------------------------
+
+void	VarCollectors::CollectLocalVarsAndUpvaluesInfo(lua_State *L, const int &stack_level)
+{
+	m_LocalVarLUT.clear();
+	
+	const int	top = lua_gettop(L);
+	
+	// scan local variables at this stack level
+	lua_Debug	ar;
+	
+	bool	ok = lua_getstack(L, stack_level, &ar);
+	assert(ok);
+	
+	for (int i = 1; true; i++)
+	{
+		const char *var_name_p = lua_getlocal(L, &ar, i);
+		if (!var_name_p)		break;		// no more locals at this level
+		
+		const string	var_name(var_name_p);
+		
+		LocalVarInfo	vi;
+		
+		vi.m_Index = i;
+		vi.m_StackDepth = level;
+		vi.m_UpValueFlag = false;
+		
+		// store (will overwrite any existing, as per scoping rules)
+		s_LocalVarLUT[var_name] = vi;
+		
+		// pop variable itself
+		lua_pop(L, 1);
+	}
+		
+	// void	lua_upvalueid(lua_State *L, int fidx, int n);
+	// void	lua_upvaluejoin()
+		
+	// overwrite with any upvalues at this stack level
+		const int	n_upvalues = m_CallStack.m_Levels[level].m_UpValues;
+		if (n_upvalues == 0)		continue;		// no upvalues
+		
+		// push onto stack function that's at this stack level	// RE-squashes activation record
+		ok = lua_getinfo(L, "f", &ar);
+		assert(ok);
+		
+		for (int i = 1; i <= n_upvalues; i++)						// SHOULD BE UNBOUND ?
+		{
+			// get var name and push value onto the stack
+			const string	var_name = lua_getupvalue(L, -1/*funcindex*/, i);
+			assert(!var_name.empty());			// should never happen
+			
+			const TLUA	upval_type = LUA_TYPE(L, -1);
+			
+			if ((upval_type == LUA_TTABLE) && (var_name == "_ENV"))
+			{	// don't process _ENV ?
+				uLog("unprocessed _ENV upvalue");
+			}
+			else if (upval_type != LUA_TFUNCTION)
+			{	// not a function
+				LocalVarInfo	vi;
+				
+				vi.m_Index = i;
+				vi.m_StackDepth = level;
+				vi.m_UpValueFlag = true;
+				
+				// store (will overwrite any existing, as per scoping rules)
+				s_LocalVarLUT[var_name] = vi;
+			}
+			else
+			{	// log a warning, but will be ignored in watch
+				const string	upval_type_s = lua_typename(L, upval_type);
+				
+				uLog("CollectLocalVarsAndUpvaluesInfo() hit unhandled upvalue \"%s\" (type %s)", var_name.c_str(), upval_type_s.c_str());
+			}
+			
+			// pop variable itself
+			lua_pop(L, 1);
+		}
+		
+		// pop lua function
+		lua_pop(L, 1);
+	}
+	
+	assert(top == lua_gettop(L));
+}
+
+//--------------------------------------------------------------------
+
+	
+	#if 0
+	
+		if (LocalsList.size() > 0)
+		{	// sort locals alphabetically
+			std::sort(LocalsList.begin(), LocalsList.end(), [](const PrefetchedVar &e1, const PrefetchedVar &e2) {return e1.m_lowkeyname < e2.m_lowkeyname;});
+		}
+		// else will crash
+	
+	#endif
+
+struct PrefetchedVar
+{
+	string	m_KeyName;		// used only for globals
+	string	m_lowkeyname;		// sorting key for globals and locals
+	int	m_StackLevel;		// used only for locals
+	int	m_VarIndex;		// used only for locals
+};
+
+	PrefetchedVar	pfl;
+	
+	pfl.m_KeyName = key_str;
+	pfl.m_lowkeyname = key_str;
+	transform(pfl.m_lowkeyname.begin(), pfl.m_lowkeyname.end(), pfl.m_lowkeyname.begin(), ::tolower);
+	pfl.m_StackLevel = DDT_STACK_LEVEL_GLOBALS;
+	pfl.m_VarIndex = 0;
+		
+	globals_list.push_back(pfl);
+
+	PrefetchedVar	pfl;
+		
+	pfl.m_KeyName = key_str;
+	pfl.m_lowkeyname = key_str;
+	transform(pfl.m_lowkeyname.begin(), pfl.m_lowkeyname.end(), pfl.m_lowkeyname.begin(), ::tolower);	// in & out iterators bad?
+	pfl.m_StackLevel = DDT_STACK_LEVEL_REGISTRY;
+	pfl.m_VarIndex = 0;
+			
+	globals_list.push_back(pfl);
+
+// sort globals alphabetically
+	if (globals_list.size() > 0)
+	{	// compare function MUST return a bool or it'll crash!
+		std::sort(globals_list.begin(), globals_list.end(), [](const PrefetchedVar &e1, const PrefetchedVar &e2) {return e1.m_lowkeyname < e2.m_lowkeyname;});
+	}
+
+// dump globals	& registry combo
+	for (int i = 0; i < globals_list.size(); i++)
+	{
+		PrefetchedVar	pfl = globals_list[i];
+		
+		const int	level = pfl.m_StackLevel;
+		const int	table_ind = (level == DDT_STACK_LEVEL_GLOBALS) ? globals_table_index : LUA_REGISTRYINDEX;
+		
+		lua_pushstring(L, pfl.m_KeyName.c_str());
+		lua_rawget(L, table_ind);
+		
+		if (CollectNextVariable(L, pfl.m_KeyName, "", 0/*indent*/, level))
+		{	DumpLuaTableRecursive(L, pfl.m_KeyName, 1/*indent*/);
+		}
+
+		// remove variable value from stack
+		lua_pop(L, 1);
+	}
+
+struct LocalVarInfo
+{
+	int	m_StackDepth;
+	int	m_Index;
+	bool	m_UpValueFlag;
+};
+
+using StringToLocalVarInfoHashMap = std::unordered_map<std::string, LocalVarInfo>;
+using LuaToDdtConvHashMap = std::unordered_map<int, COLLECTED_TYPE>;
+
+class Watch
+{
+public:
+	// ctor
+	Watch(const std::string &s = std::string());
+	
+	std::string	GetTitle(void) const;
+	bool		IsComposite(void) const;
+	size_t		NumElms(void) const;
+	std::string	GetNthElm(const size_t &index) const;
+	
+private:
+	
+	std::string			m_Title;
+	std::vector<std::string>	m_Elms;
+};
+
+//---- WATCH class ------------------------------------------------------------
+
+	Watch::Watch(const string &s)
+		: m_Title(s)
+{
+	assert(!s.empty());
+	m_Elms.clear();
+	
+	string	elm;
+	
+	for (int i = 0; i < m_Title.size(); i++)
+	{
+		string::value_type	c = m_Title[i];
+		
+		if ((c == '.') || (c == '[') || (c == ']'))
+		{	// new elm
+			assert(!elm.empty());
+			m_Elms.push_back(elm);
+			elm.clear();
+		}
+		else	elm.push_back(c);		// append char doesn't compile ?
+	}
+	
+	// add last chunk if not empty
+	if (!elm.empty())		m_Elms.push_back(elm);
+}
+
+string	Watch::GetTitle(void) const
+{
+	return m_Title;
+}
+
+size_t	Watch::NumElms(void) const
+{
+	return m_Elms.size();
+}
+
+bool	Watch::IsComposite(void) const
+{
+	return NumElms() > 1;
+}
+
+string	Watch::GetNthElm(const size_t &index) const
+{
+	assert(index < m_Elms.size());
+	
+	return m_Elms[index];
+}
+
+//---- Unserialize Watches ----------------------------------------------------
+
+void	LuaGlue::UnserializeWatches(const StringList &watch_names)
+{
+	// re-instantiate Watch classes from strings
+	m_WatchList.clear();
+	
+	for (auto &it : watch_names)
+	{	const string	watch_nm = it;
+		
+		// uLog("LuaGlue watch \"%s\"", watch_nm.c_str());
+		
+		m_WatchClassList.push_back(Watch(watch_nm));
+	}
+}
+
+// int8_t specialization
+template<typename ... Args>
+std::string	xsprintf(const char *s, const std::int8_t &i8, Args ... args)
+{
+	std::ostringstream	ss;
+	
+	xhandleprefix(s/*&*/, ss/*&*/);
+	
+	if (*s != 'd')		throw std::runtime_error("bad xsprintf() format in std::int8_t specialization");
+	
+	ss << (int) i8;
+		
+	return ss.str() + xsprintf(++s, args ...);	// recurse with tail of arg list
+}
+
+// uint8_t specialization
+template<typename ... Args>
+std::string	xsprintf(const char *s, const std::uint8_t &u8, Args ... args)
+{
+	std::ostringstream	ss;
+	
+	xhandleprefix(s/*&*/, ss/*&*/);
+	
+	if (*s != 'd')		throw std::runtime_error("bad xsprintf() format in std::uint8_t specialization");
+	
+	ss << (unsigned int) u8;
+		
+	return ss.str() + xsprintf(++s, args ...);	// recurse with tail of arg list
+}
+
+//--------------------------------------------------------------------
+
+	// const char	*type_s = typeid(val).name();
+	const type_info	&type_i = typeid(T);
+	const char	*type_s = typeid(T).name();
+	
+	ss << " " << type_s << " ";
+	
+//---- Get Function Arguments -------------------------------------------------
+
+void	VarCollectors::CollectFunctionArguments(lua_State *L, const int &stack_depth)
+{
+	assert(L);
+	
+	const int	top = lua_gettop(L);
+	
+	lua_Debug	ar;
+	
+	bool	ok = lua_getstack(L, stack_depth, &ar);
+	assert(ok);
+	
+	const int	n_args = ar.nparams;
+	
+	for (int i = 1; i <= n_args; i++)
+	{
+		const char *key_p = lua_getlocal(L, &ar, i);
+		if (!key_p)		break;			// done
+		
+		string	key_name(key_p);
+		assert(!key_name.empty());
+		
+		if (CollectNextVariable(L, key_name, "", 0/*indent*/, stack_depth))
+		{	// table is at index -1
+			DumpLuaTableRecursive(L, key_name, 1/*indent*/);
+		}
+		
+		lua_pop(L, 1);
+	}
+	
+	assert(top == lua_gettop(L));
+}
+
+//--------------------------------------------------------------------
+
+	if (entry_type == ENTRY_TYPE::FIRST_HOOK)
+	{	assert(hook_ar);
+		const string	source = hook_ar->source;
+		
+		if (source[0] == '@')
+		{
+			// skip arobas
+			const string	lua_filename { source, 1};
+	
+			// add to (useless?) translation map...
+			AddLuaFilenameTranslation(lua_filename, lua_filename);
+		
+			// set any pending breakpoints
+			SetValidBreakpoints();
+		}
+		
+		// set next (real) hook
+		SetLuaHook(L, m_BreakASAPFlag ? BREAK_TYPE::INSTRUCTION : BREAK_TYPE::BREAKPOINTS);
+		
+		return true;		// continue
+	}
+
+//--------------------------------------------------------------------
+
+inline
+string	ConvNum(const double &d)
+{	// convert to string with RETARDED++11
+	char	buff[32];
+	
+	#ifndef WIN32
+		snprintf(buff, sizeof(buff), "%.14g", d);
+	#else
+		// Windows is HUNGRY FOR COCK; non-standard, "safe" function forgets EOL
+		_snprintf(buff, sizeof(buff), "%.14g\0", d);
+	#endif
+	
+	return string(buff);
+}
+
+inline
+string	ConvPtr(const void *p)
+{	// convert to string with RETARDED++11
+	char	buff[32];
+	
+	#ifndef WIN32
+		snprintf(buff, sizeof(buff), "%p", p);
+	#else
+		// Windows is HUNGRY FOR COCK; non-standard, "safe" function forgets EOL
+		_snprintf(buff, sizeof(buff), "%p\0", p);
+	#endif
+	
+	const string	res{buff};
+	assert(!res.empty());		// (empty ptr conversion is not okay, duh)
+	
+	return res;
+}
+
+//--------------------------------------------------------------------
+
+struct no_separator : std::numpunct<char>
+{
+protected:
+	virtual string_type do_grouping() const 
+        {
+		return "\000";
+	}	// groups of 0 (disable)
+};
+
+//---- FIRST Hook Function ----------------------------------------------------
+
+static
+void	lg_FirstHookFunction(lua_State *L, lua_Debug *ar)
+{
+	assert(L);
+	assert(ar);
+	
+	// fill actual debug info (source filename and line#) -- CAPITAL S
+	bool	ok = lua_getinfo(L, "Sl", ar);
+	assert(ok);
+	
+	// don't break on C call (or could still want to inspect the call stack?)
+	if (::strcmp("C", ar->what) == 0)	return;
+	
+	LuaGlue	*lglue = GetLuaGlue(L);
+	
+	/*bool	cont = */lglue->OnDebuggerEntry(L, ENTRY_TYPE::FIRST_HOOK, ar);
+}
+
+//---- Immediate Hook Function ------------------------------------------------
+
+static
+void	lg_ImmediateHookFunction(lua_State *L, lua_Debug *ar)
+{
+	assert(L);
+	assert(ar);
+	
+	bool	ok = lua_getinfo(L, "Sl", ar);
+	assert(ok);
+	
+	// should break even on C call ?
+	if (::strcmp("C", ar->what) == 0)	return;
+	
+	LuaGlue	*lglue = GetLuaGlue(L);
+	
+	lglue->OnDebuggerEntry(L, ENTRY_TYPE::IMMEDIATE_HOOK, ar);
+}
+
+//--------------------------------------------------------------------
+
+	// send error notification
+	{	LuaVMError	vme("load error", flat_err_s, err_n);
+	
+		uLog("LuaVMError(load error) %s:%d", lua_filename, ln);
+
+		vme.m_SourceName = lua_filename;
+		vme.m_SourceLine = ln;
+
+		MemoryOutputStream	mos;
+
+		mos << DAEMON_MSG::NOTIFY_VM_ERROR << vme;
+
+		m_Daemon->SendMessage(mos);
+	}
+
+//--------------------------------------------------------------------
+
+	#if 0
+	
+	// locale loc("");
+	// imbue loc and add your own facet:
+	// oss.imbue(locale(loc, new no_hexbase()));
+	// oss << "i: " << int(123456) << " f: " << float(3.14) << p << "\n";
+	// oss << noshowbase << setw(16) << "__" << hex << p << "__" << endl;
+	
+	{
+		// string	res = xsprintf("std::string = \"%s\", C string = \"%s\", quoted string = %S", string("jah"), "caca", "HOP");
+		// string	res = xsprintf("char %c", 'p');
+		
+		int8_t		i8 = 17;
+		uint8_t		u8 = 0xf0;
+		// int		i = 12;
+		int		i = 1234567;
+		unsigned int	u = -10;
+		float		f = 3.1415;
+		// double		d = M_PI;
+		bool		b = false;
+		
+		// string	res = xsprintf("int8_t %d, uint8_t %d, int %d", i8, u8, i);
+		// string	res = xsprintf("unsigned int %u", u);
+		// string	res = xsprintf("int8_t %d, uint8_t %d, unsigned int %u", i8, u8, u);
+		// string	res = xsprintf("int8_t %d, unsigned int %u", i8, u);
+		// string	res = xsprintf("int8_t %d", i8);
+		// string	res = xsprintf("%s", string("caca"));
+		// string	res = xsprintf("int8_t %d, uint8_t %d, int %d", i8, u8, i);
+		// string	res = xsprintf("int8_t %d, uint8_t %d, int %d, unsigned int %d", i8, u8, i, u);
+		// string	res = xsprintf("int8_t %d, uint8_t %d, int %d, unsigned int %u", i8, u8, i, u);
+		// string	res = xsprintf("int hex %02X", i);
+		// string	res = xsprintf("int hex 0x%08x", u8);
+		// string	res = xsprintf("size_t %zu", ddtLog::m_Entries.size());
+		// string	res = xsprintf("int hex 0x%08x", u8);
+		// string	res = xsprintf("float %g", f);
+		// string	res = xsprintf("double %g", d);
+		
+		// res = xsprintf("no fmt specifier", i8, i);
+		// res = xsprintf("no fmt specifier", i, i8, i);
+
+		// string	res = xsprintf("ptr %p", s_Log);
+		// string	res = xsprintf("bool %c", b);
+	}
+	#endif
+	
+	// string	res = xsprintf("%p", (void*) &s_Log);
+	// string	res = xsprintf("%p", &s_Log);
+
+//--------------------------------------------------------------------
+
+static
+void	ddt_rawgetfield(lua_State *L, const int &tab_idx, const string &field_s)
+{
+	assert(L);
+	assert(lua_istable(L, tab_idx));
+	
+	lua_pushstring(L, field_s.c_str());
+	
+	lua_rawget(L, tab_idx - 1);
+	assert(!lua_isnil(L, -1));
+}
+
+static
+void	ddt_get_debuginfo(lua_State *L, const int &stack_depth, lj_Debug &ar)
+{
+	LuaStackDancer	ctop(L);
+	
+	ar.nparams = 0;
+	ar.isvararg = false;
+	
+	lua_getglobal(L, "debug");
+	assert(lua_istable(L, -1));
+	ddt_rawgetfield(L, -1, "getinfo");
+	// lua_pushstring(L, "getinfo");
+	// lua_rawget(L, -2);
+	assert(lua_isfunction(L, -1));
+	lua_remove(L, -2);			// (pop temp debug[])
+	
+	// 1st arg
+	lua_pushinteger(L, stack_depth);
+	// 2nd arg
+	lua_pushstring(L, "u");
+	// call
+	lua_call(L, 2/*n_args*/, 1/*n_res*/);
+	assert(lua_istable(L, -1));
+	
+	ddt_rawgetfield(L, -1, "nparams");
+	ar.nparams = luaL_checkinteger(L, -1);
+}
+
+std::string	GetStampString(const time_t &stamp, const std::string &fmt = "%Y-%m-%d %H:%M:%S");
+
+//---- Get Stamp String -------------------------------------------------------
+
+string	GetStampString(const time_t &stamp, const std::string &t_fmt)
+{
+	const char	*fmt =  t_fmt.c_str();
+	assert(fmt);
+	
+	// make sure sizes match (compile-time)
+	// static_assert(sizeof(stamp32) == sizeof(time_t), "mismatched time_t size");
+	// const time_t	stamp = (time_t) stamp32;
+	
+	struct tm	*stamp_calendar = localtime(&stamp);			// should use GetTimes(nil, &mtimes, nil) ? FIXME
+	assert(stamp_calendar);
+	
+	char	buff[128];
+	
+	const size_t	written_sz = strftime(&buff[0], sizeof(buff), fmt, stamp_calendar);
+	assert(written_sz < sizeof(buff));
+	
+	// store string locally or will be out-scoped
+	string	res(buff, written_sz);
+	
+	return res;
+}
+
+#ifdef __DDT_IOS__
+	extern void SetLogView(const char *text);
+#endif
+
+// static
+cuLog*		cuLog::s_cuLog = nil;
+
+//---- CTOR -------------------------------------------------------------------
+
+	cuLog::cuLog(const char *tmp_dir, const char *filename)
+		: m_EnabledFlag{true}, m_LogToStderrFlag{false}
+{
+	assert(tmp_dir);
+	assert(filename);
+	assert(!s_cuLog);
+	
+	// (singleton)
+	s_cuLog = this;
+	
+	m_LevelHashSet = {ERROR, MSG};
+	
+	string  fpath(tmp_dir);
+    
+	fpath.append(filename);					// FIXME - check separator
+	
+	m_OFStream = new ofstream(fpath.c_str(), ios_base::trunc);
+	
+	// m_LogToStderrFlag = false;				// otherwise has to console output (???)
+	
+	#ifdef __DDT_IOS__
+		m_Entries.clear();
+		m_LastVisibleLines = 40;
+	#endif
+}
+
+//---- DTOR -------------------------------------------------------------------
+
+	cuLog::~cuLog()
+{
+	if (!m_OFStream)	return;		// already released
+	
+	(*m_OFStream) << "uLog DTOR" << endl << flush;
+	
+	delete m_OFStream;
+	m_OFStream = nil;
+	
+	assert(s_cuLog);
+	
+	s_cuLog = nil;
+}
+
+//---- Toggle On/Off ----------------------------------------------------------
+
+void	cuLog::Toggle(const bool f)
+{
+	m_EnabledFlag = f;
+}
+
+//---- Set Log to stderr Flag -------------------------------------------------
+
+void	cuLog::SetLogToStderrFlag(const bool &f)
+{
+	m_LogToStderrFlag = f;
+}
+
+//---- Enable Log Levels ------------------------------------------------------
+
+void	cuLog::EnableLevels(const unordered_set<LogLevel> &enable_set)
+{
+	for (const LogLevel ev : enable_set)
+	{	// CheckLegalLevel(ev);
+		
+		m_LevelHashSet.insert(ev);
+	}
+}
+
+//---- Is Log Level Enabled ? -------------------------------------------------
+
+bool	cuLog::IsLevelEnabled(const LogLevel &level_index) const
+{
+	return (m_LevelHashSet.count(level_index) > 0);
+}
+
+#ifdef __DDT_IOS__
+
+//----- Set # Last Visible Lines ----------------------------------------------
+	
+void	cuLog::SetLastVisibleLines(const int &n)
+{
+	m_LastVisibleLines = n;
+}
+
+#endif // iOS
+
+//---- Do Raw Log LOW-LEVEL ---------------------------------------------------
+
+// static
+void	cuLog::doLog_LL(const LogLevel &lvl, const string &msg)
+{
+	if (msg.empty())		return;
+	
+	assert(s_cuLog);
+	
+	s_cuLog->doLog(msg);
+}
+
+// static
+bool	cuLog::HasULogLevel_LL(const LogLevel &lvl)
+{
+	assert(s_cuLog);
+	
+	return s_cuLog->IsLevelEnabled(lvl);
+}
+	
+//---- Do Log -------------------------------------------------------------
+
+void	cuLog::doLog(const string &msg)
+{
+	if (msg.empty())	return;
+	if (!m_EnabledFlag)	return;
+	
+	const string	timestamp_s{LX::xtimestamp_str()};
+	
+	#ifdef __DDT_IOS__
+	{
+		// buffer new line & concat last # entries to simulate scroll on UIView
+		m_Entries.push_back(timestamp_s + msg);
+		
+		const int	n_entries = m_Entries.size();
+		const int	first_ln = (n_entries > m_LastVisibleLines) ? (n_entries - m_LastVisibleLines) : 0;
+		
+		string	log_s;
+		
+		for (int i = first_ln; i < n_entries; i++)
+		{
+			log_s += m_Entries[i] + "\n";
+		}
+		
+		SetLogView(log_s.c_str());
+	}
+	#endif
+	
+	if (m_OFStream)
+	{	// log to file
+		(*m_OFStream) << timestamp_s << " " << msg << endl;		// (std::endl includes std::flush)
+	}
+	
+	if (m_LogToStderrFlag)
+	{	// and console
+		cerr << timestamp_s << " " << msg << endl;
+	}
+}
+
+//---- ddt Custom Log ---------------------------------------------------------
+
+class cuLog
+{
+public:
+	// ctor
+	cuLog(const char *tmp_dir, const char *fn);
+	// dtor
+	virtual ~cuLog();
+	
+	// functions
+	void	SetLogToStderrFlag(const bool &f);
+	void	doLog(const std::string &msg);
+	void	Toggle(const bool f);
+	void	EnableLevels(const std::unordered_set<LogLevel> &enable_set);
+	bool	IsLevelEnabled(const LogLevel &evt_id) const;
+	
+	static void	doLog_LL(const LogLevel &lvl, const std::string &msg);
+	static bool	HasULogLevel_LL(const LogLevel &lvl);
+	
+	#ifdef __DDT_IOS__
+		void	SetLastVisibleLines(const int &n);
+	#endif
+	
+private:
+	
+	bool			m_EnabledFlag;
+	std::ofstream		*m_OFStream;
+	bool			m_LogToStderrFlag;
+	
+	// static
+	std::unordered_set<LogLevel>	m_LevelHashSet;
+	
+	static cuLog		*s_cuLog;
+	
+	#ifdef __DDT_IOS__
+		std::vector<std::string>	m_Entries;
+		int				m_LastVisibleLines;
+	#endif
+};
+
+template<typename ... Args>
+void	uLog(const LogLevelEnum &lvl, const std::string &fmt, Args ... args)
+{
+	if (!cuLog::HasULogLevel_LL(lvl))	return;
+	
+	std::string	full_s = LX::xsprintf(fmt.c_str(), std::forward<Args>(args) ...);
+	
+	cuLog::doLog_LL(lvl, full_s);
+}
+
+//--------------------------------------------------------------------
+
+	const string	s = "return function(name, body) return load(body, name, 't', _G) end";
+	luaL_loadstring(L, s.c_str());
+	assert(lua_isfunction(L, -1));
+	// register placeholder outer shell
+	err_n = pcall(L, 0, 1);
+	assert(!err_n);
+	
+	// SetLuaHook(L, BREAK_TYPE::INSTRUCTION);
+	
+	// lua_getglobal(L, "parse");
+	assert(lua_isfunction(L, -1));
+	
+	const string	&body_s = m_ProjectModuleMap.at(module).m_Buff;
+	lua_pushstring(L, arobas_name.c_str());
+	lua_pushlstring(L, body_s.c_str(), body_s.size());
+	uLog(BREAKPOINT, "calling parse(%S, %d chars)", arobas_name, body_s.size());
+	err_n = pcall(L, 2, 2);
+	assert(!err_n);
+	
+	const char	*typ1 = lua_typename(L, lua_type(L, -1));
+	const char	*res1 = luaL_optstring(L, -1, "");
+	const char	*typ2 = lua_typename(L, lua_type(L, -2));
+	const char	*res2 = luaL_optstring(L, -2, "");
+	
+	if (lua_isnil(L, -1))
+	{	// error, couldn't parse
+		uErr("couldn't parse %S, returned nil", arobas_name);
+		assert(lua_isstring(L, -2));
+		const string	err_s = luaL_checkstring(L, -2);
+		uErr("parse err %S", err_s);
+		return LUA_ERRSYNTAX;
+	}
+	
+	// register main script outer shell
+	uLog(BREAKPOINT, "calling parseholder for %S", arobas_name);
+	assert(lua_isfunction(L, -1));
+	err_n = pcall(L, 0, 0);
+	assert(!err_n);
+	
+	m_LoadedModuleSet.insert(lua_filename);
+	SetValidBreakpoints();
+	SetLuaHook(L, BREAK_TYPE::LINE);
+	
+	return 0;
+
+//--------------------------------------------------------------------
+
+	if (ok && (short_name == startup.m_Source))
+	{	// 1st lua file
+		const string	full_path = FileName::MakeFullPath(local_path, short_name);
+		assert(!m_FileGarbageSet.count(full_path));
+		assert(!FileName::FileExists(full_path));
+		
+		ofstream	ofs(full_path.c_str(), ios_base::binary | ios::trunc/*overwrite*/);
+		assert(!ofs.fail() && !ofs.bad());				// couldn't open error
+		
+		ofs.write(&buff_s[0], data_sz);
+		ok = !ofs.fail();
+		
+		ofs.flush();
+		ofs.close();
+
+		m_FileGarbageSet.insert(full_path);
+	}
+					
+//---- Get package.path -------------------------------------------------------
+
+string	LuaGlue::Get_package_path(lua_State *L)
+{
+	uLog(INTERCEPT, "LuaGlue::GetLua_package_path()");
+	assert(L);
+	
+	const int	base_sp = lua_gettop(L);
+	
+	lua_getglobal(L, "package");
+	assert(lua_istable(L, -1));
+	lua_pushstring(L, "path");
+	lua_rawget(L, -2/*table index*/);
+	assert(lua_isstring(L, -1));
+	
+	const string	s = luaL_checkstring(L, -1);
+	
+	lua_pop(L, 2);
+	
+	assert(base_sp == lua_gettop(L));
+	
+	return s;
+}
+
+//---- Set package.path -------------------------------------------------------
+
+void	LuaGlue::Set_package_path(lua_State *L, const string &pattern)
+{
+	uLog(INTERCEPT, "LuaGlue::Set_package_path(%S)", pattern.c_str());
+	assert(L);
+	
+	const int	base_sp = lua_gettop(L);
+	
+	lua_getglobal(L, "package");
+	assert(lua_istable(L, -1));
+	lua_pushstring(L, "path");
+	lua_pushstring(L, pattern.c_str());
+	lua_rawset(L, -3);
+	lua_pop(L, 1);
+	
+	assert(base_sp == lua_gettop(L));
+}
+
+//---- Clean temp File Cache --------------------------------------------------
+
+void	Daemon::CleanFileCache(void)
+{
+	const size_t	n_garbage = m_FileGarbageSet.size() + m_DirGarbageSet.size();
+	if (n_garbage == 0)		return;			// (no files or dirs to delete)
+	
+	uLog(SESSION, "Daemon::CleanFileCache(%zu files)", n_garbage);
+	
+	int	n_errs = 0;
+	
+	for (const auto &fullpath : m_FileGarbageSet)
+	{
+		uLog(SESSION, "  %S", fullpath);
+		
+		if (!FileName::FileExists(fullpath))
+		{
+			n_errs++;
+			continue;
+		}
+		
+		const bool	ok = FileName::RemoveFile(fullpath);
+		if (!ok)	n_errs++;
+	}
+	
+	m_FileGarbageSet.clear();
+	
+	// delete leaves FIRST
+	// won't delete non-owned files, such as ASSETS
+	for (const auto dirpath : m_DirGarbageSet)
+	{
+		uLog(SESSION, "  %S", dirpath);
+		
+		if (!FileName::DirExists(dirpath))
+		{
+			n_errs++;
+			continue;
+		}
+		
+		bool	ok = FileName::RmDir(dirpath);
+		if (!ok)	n_errs++;
+	}
+	
+	m_DirGarbageSet.clear();
+	
+	if (n_errs)
+	{	uLog(SESSION, "  %d errors", n_errs);
+	
+	}
+}
+
+//---- Get Client Message Type ------------------------------------------------
+
+CLIENT_MSG	Daemon::GetClientMessageType(const vector<uint8_t> &buff) const
+{
+	assert(buff.size() >= 4);
+	
+	// copy 4 header bytes
+	vector<uint8_t>	header_buff(buff.begin(), buff.begin() + 4);
+	
+	MemoryInputStream	mis(header_buff);
+	assert(mis.IsOk());
+	
+	CLIENT_MSG	msg_t;
+	
+	mis >> msg_t;
+	
+	return msg_t;
+}
+
+#ifdef WIN32
+	// make sure doesn't get inlined
+	bool operator<=(CLIENT_CMD cmd, int i);
+#else
+	// non-Win
+	constexpr  bool operator<=(CLIENT_CMD cmd, int i)
+	{	return (static_cast<int>(cmd)) <= (i);
+	}
+#endif
+
+//---- Lua VM Error -----------------------------------------------------------
+
+class LuaVMError
+{
+public:
+	// ctors
+	LuaVMError(const std::string &err_msg);
+	LuaVMError(LX::DataInputStream &dis);
+	
+	std::string	m_ErrorString;
+	
+	std::string	m_SourceName;
+	int32_t		m_SourceLine;
+};
+LX::DataOutputStream& operator<<(LX::DataOutputStream &dos, const LuaVMError &lua_vm_error);
+
+//==== Lua VM Error ===========================================================
+
+	LuaVMError::LuaVMError(const std::string &err_str)
+		: m_ErrorString{err_str}
+{	
+	m_SourceName.clear();
+	m_SourceLine = -1;
+}
+
+	LuaVMError::LuaVMError(DataInputStream &dis)
+{	
+	dis >> m_ErrorString >> m_SourceName >> m_SourceLine;
+}
+
+DataOutputStream& operator<<(DataOutputStream &dos, const LuaVMError &lua_vm_error)
+{
+	dos << lua_vm_error.m_ErrorString << lua_vm_error.m_SourceName << lua_vm_error.m_SourceLine;
+	return dos;
+}
+	
+//---------------------------------------------------------------------
+		
+		LuaVMError	vme(ss.str());
+		
+		// (vm error will have @ prefix)
+		const string	pre_translated_fn = (fn[0] == '@') ? string(fn, 1) : fn;
+		vme.m_SourceName = pre_translated_fn;
+		assert(!vme.m_SourceName.empty());
+		vme.m_SourceLine = ln;
+		
+		uMsg("*** LuaVM error %S at %s:%d ***", vme.m_ErrorString, vme.m_SourceName, vme.m_SourceLine);
+		
+		uLog(GLUE, "sending NOTIFY_VM_ERROR message");
+		
+		MemoryOutputStream	mos;
+		
+		mos << DAEMON_MSG::NOTIFY_VM_ERROR << vme;
+		
+		bool	ok = m_Daemon->SendMessage(mos);
+		if (!ok)	uErr("Network FAILURE, couldn't notify");
+		
+		// do NOT reloop yet!
+		
+//---------------------------------------------------------------------
+
+	// remoter (optional)
+	REMOTER_PULL_DIR_LISTING,
+	REMOTER_PUSH_FILE,
+	REMOTER_PULL_FILE,
+	REMOTER_DELETE_FILES,
+	REMOTER_PULL_FILE_MANIFESTS,
+	REMOTER_PUSH_NEW_DIR,
+	REMOTER_DELETE_DIR
+
+//---------------------------------------------------------------------
+
+	case CLIENT_MSG::REMOTER_PULL_DIR_LISTING:
+	{	
+		StringList	expanded_dirs(mis);
+		
+		// (always collects from root)
+		Dir	cdir(expanded_dirs);
+		
+		MemoryOutputStream	mos;
+		
+		mos << DAEMON_MSG::REMOTER_REPLY_DIR_LISTING;
+		
+		cdir.Serialize(mos);
+		
+		SendMessage(mos);
+	}	break;
+	
+	case CLIENT_MSG::REMOTER_PUSH_FILE:
+	{
+		// copy file from client
+		const string	fullpath = mis.ReadString();
+		assert(!fullpath.empty());
+		
+		// write file
+		ok = FileName::UnserializeFile(mis, fullpath);
+		assert(ok);
+	}	break;
+	
+	case CLIENT_MSG::REMOTER_DELETE_FILES:
+	{
+		const StringList	path_list(mis);
+		assert(!path_list.empty());
+		
+		// delete file
+		ok = FileName::RemoveFile(path_list.front());		// deletes just one file for now
+		assert(ok);
+	}	break;
+	
+	case CLIENT_MSG::REMOTER_DELETE_DIR:
+	{
+		const string	fullpath = mis.ReadString();
+		assert(!fullpath.empty());
+		
+		// delete file
+		ok = FileName::RmDir(fullpath);
+		assert(ok);
+	}	break;
+	
+	case CLIENT_MSG::REMOTER_PULL_FILE_MANIFESTS:
+	{	
+		RequestFileManifests	manifest_request(mis);
+		
+		const string	dir_path = manifest_request.m_DaemonDir;
+		const size_t	n_filenames = manifest_request.m_FileNames.size();
+		
+		uMsg("    RequestFileManifests(path %S, %zu files)", dir_path, n_filenames);
+		
+		// collect manifests
+		MemoryOutputStream	mos;
+		
+		mos << DAEMON_MSG::REMOTER_REPLY_FILE_MANIFESTS << (uint32_t) n_filenames;
+		
+		for (auto it : manifest_request.m_FileNames)
+		{
+			const string	full_path = FileName::MakeFullPath(dir_path, it);
+			if (!FileName::FileExists(full_path))
+			{	// missing daemon file
+				mos << FileManifest::MissingFile(it);
+				continue;
+			}
+			
+			FileManifest	fm(full_path);
+			
+			fm.FillProperties();
+				
+			mos << fm;
+		}
+		
+		SendMessage(mos);
+	}	break;
+	
+	// create new directory
+	case CLIENT_MSG::REMOTER_PUSH_NEW_DIR:
+	{
+		const string	local_sym = mis.ReadString();
+		
+		const string	local_path = FileName::Normalize(local_sym);
+		
+		if (!FileName::DirExists(local_path))		// should have been checked client-side ?
+		{
+			ok = FileName::MkDir(local_path);
+			assert(ok);
+		}
+		
+	}	break;
+
+//---------------------------------------------------------------------
+
+#ifdef WIN32
+	bool operator<=(CLIENT_CMD cmd, int i)
+	{
+		return (static_cast<int>(cmd)) <= (i);
+	}
+#endif
+
+
+/*
+static
+const char*	s_ddt_reader(lua_State *L, void *data, size_t *sz_p)
+{
+	assert(L);
+	assert(data);
+	assert(sz_p);
+	
+	LuaGlue	*lglue = static_cast<LuaGlue*>(data);
+	assert(lglue);
+	
+	return nil;
+}
+*/
+
+//=== REQUEST FILE MANIFESTS ==================================================
+
+class RequestFileManifests
+{
+public:
+	// ctors
+	RequestFileManifests(const std::string &dir = std::string(""), const StringList &fn_list = StringList());
+	RequestFileManifests(LX::DataInputStream &dis);
+	
+	std::string	m_DaemonDir;
+	StringList	m_FileNames;
+};
+LX::DataOutputStream& operator<<(LX::DataOutputStream &dos, const RequestFileManifests &req_manifest);
+
+//=== Request Files' Manifests ================================================
+
+	RequestFileManifests::RequestFileManifests(const std::string &dir, const StringList &fn_list)
+		: m_DaemonDir(dir), m_FileNames(fn_list)
+{
+}
+
+	RequestFileManifests::RequestFileManifests(DataInputStream &dis)
+		: m_DaemonDir(dis.ReadString()), m_FileNames(dis)
+{
+}
+DataOutputStream& operator<<(DataOutputStream &dos, const RequestFileManifests &req_manifests)
+{
+	dos << req_manifests.m_DaemonDir << req_manifests.m_FileNames;
+	return dos;
+}
+
+	// typedef std::basic_ostream<uint8_t, std::char_traits<uint8_t>>	LX_mos;
+// namespace LX
+// {
+
+	// using std::basic_ostream;
+	// using std::char_traits;
+	
+// template<typename C, typename Tr = std::char_traits<C> >
+// std::basic_ostream<uint8_t, Tr>&	operator<<(std::basic_ostream<uint8_t, Tr>, const DAEMON_MSG &msg_t);
+
+
+//---- Send User Log to Client ------------------------------------------------
+
+bool	Daemon::SendUserLog(const uint32_t &id, const timestamp_t &timestamp_ms, const string &msg)
+{
+	assert(m_ServerTCP);
+	
+	if (!IsMainThread())
+	{	// illegal: not from main thread
+		uErr("ERROR - Daemon::SendUserLog() called from secondary thread");
+		return false;
+	}
+	
+	const JitGlue	*jit_glue = m_LuaGlue.GetJitGlue();
+	const bool	mute_f = (jit_glue && jit_glue->IsProfiling());		
+	if (mute_f)		return false;		// mute during PROFILER
+
+	m_ServerTCP->QueueUDPLog(id, timestamp_ms, msg);
+	
+	return true;
+}
+
+//---- Flush User Logs --------------------------------------------------------
+
+void	Daemon::FlushUserLogs(void)
+{
+	assert(m_ServerTCP);
+	
+	const JitGlue	*jit_glue = m_LuaGlue.GetJitGlue();
+	const bool	mute_f = (jit_glue && jit_glue->IsProfiling());		
+	if (mute_f)		return;			// mute during PROFILER
+
+	m_ServerTCP->BroadcastNetLogs();
+}
+
+//--------------------------------------------------------------------
+
+unique_lock<mutex>	lock{m_Mutex, defer_lock};
+	if (!lock.try_lock())
+	{
+		uErr("ServerUDP::DoBroadcastNetLogs() failed mutex lock");
+		return;
+	}
+	
+	unique_lock<mutex>	lock{m_Mutex};
+	if (!lock.owns_lock())	return;				// may never restart timer - FIXME
+
+//---- Resolve $RND -----------------------------------------------------------
+
+static
+string	ResolveRandom(const string &path)
+{
+	const string	RND_STRING = "$RND";
+	
+	string	s = path;
+	
+	const int	index = path.find(RND_STRING);
+	if (index != string::npos)
+	{
+		// create rnd number
+		const vector<uint8_t>	rnd_list = GetRandomList(RND_NUM_DIGITS);
+	
+		const string	rnd_s = ByteListToHexString(rnd_list);
+	
+		s.replace(index, RND_STRING.size(), rnd_s);
+	}
+	
+	uLog(UNIT, "FileName::ResolveRandom(%S) = %S", path, s);
+	
+	return s;
+}
+
+//---- Resolve $TMP -----------------------------------------------------------
+
+static
+string	ResolveTemporary(const string &path)
+{
+	const string	TMP_STRING = "$TMP";
+	
+	string	s = path;
+	
+	const int	index = path.find(TMP_STRING);
+	if (index != string::npos)
+	{
+		const string	tmp_dir = GetTemporaryDir();
+		
+		s.replace(index, TMP_STRING.size(), tmp_dir);
+	}
+	
+	// uLog(UNIT, "FileName::ResolveTemporary(%S) = %S", path, s);
+	
+	return s;
+}
+
+//---- Resolve $TIMESTAMP -----------------------------------------------------
+
+static
+void	ResolveTimeStamp(string &path)
+{
+	const string	TIMESTAMP_STRING = "$TIMESTAMP";
+	
+	const int	index = path.find(TIMESTAMP_STRING);
+	if (index != string::npos)
+	{
+		const string	ts_string = xtimestamp_str("%Y-%m-%d_%Hh%Mm%Ss", STAMP_FORMAT::NO_MILLISEC);
+	
+		path.replace(index, TIMESTAMP_STRING.size(), ts_string);
+	}
+}
+
+//---- Set Valid Breakpoints (for loaded sources) -----------------------------
+
+void	LuaGlue::SetValidBreakpoints(void)
+{
+	m_BreakpointSet.clear();
+	
+	#if LOG_BREAKPOINT_FILE_LUTS
+		s_Debug_BreakpointFileLUTs.clear();
+	#endif
+	
+	uLog(BREAKPOINT, "LuaGlue::SetValidBreakpoints()");
+	
+	const RE2	re("^((.*)\\.lua):(\\d+)$");
+	assert(re.ok());
+	
+	for (const string bp_key : m_AllSavedBreakpoints)
+	{	
+		string	filename, name;
+		int	ln = -1;
+		
+		const bool	ok = RE2::FullMatch(bp_key, re, &filename, &name, &ln);			// using REGEX is bullshit!!!
+		assert(ok);
+		
+		if (!m_FileInstantiatedSet.count(filename))			continue;		// source not instantiated yet
+		
+		const string	daemon_bp_key = filename + ":" + to_string(ln);
+		
+		uLog(BREAKPOINT, "  bp %s", daemon_bp_key);
+		
+		m_BreakpointSet.insert(daemon_bp_key);
+	}
+	
+	uLog(BREAKPOINT, " set %d / %d breakpoints", m_BreakpointSet.size(), m_AllSavedBreakpoints.size());
+	
+	#if LOG_BREAKPOINT_FILE_LUTS
+	
+		for (const auto bp : m_BreakpointSet)	uLog(BREAKPOINT, " bp(live) %S", bp);
+		
+	#endif
+
+	UpdateFastBreakpoints();
+}
+
+//-----------------------------------------------------------------------------
+
+#include <cryptopp/cryptlib.h>
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK	1
+#include <cryptopp/md5.h>
+
+const size_t	MD5_STRING_SIZE			= CryptoPP::Weak::MD5::DIGESTSIZE * 2;
+
+//---- Compute File MD5 hash (read) -------------------------------------------
+
+string	CalcFileMD5(const string &fullpath)
+{
+	const size_t	file_sz = GetFileSize(fullpath);
+	assert(file_sz > 0);
+	
+	CryptoPP::Weak::MD5	hasher;
+		
+	ifstream	ifs(fullpath.c_str(), ios_base::binary);
+	if (ifs.fail() || ifs.bad())			return "";		// couldn't open error
+	
+	size_t	total_sz = 0;
+	
+	while (!ifs.eof())
+	{	
+		const size_t	read_sz = ifs.read((char*)&s_FileBuffer[0], s_FileBuffer.size()).gcount();
+		if (!ifs.eof() && ifs.fail())		return "";		// read error
+		
+		// update hash
+		hasher.Update(&s_FileBuffer[0], read_sz);
+		
+		total_sz += read_sz;
+	}
+	assert(file_sz == total_sz);
+	
+	// finalize hash
+	uint8_t	digest[CryptoPP::Weak::MD5::DIGESTSIZE];
+	
+	hasher.Final(digest);
+	
+	ostringstream	oss;
+	
+	for (size_t i = 0; i < sizeof(digest); i++)
+		oss << hex << setfill('0') << setw(2) << (int) digest[i];
+	
+	const string	md5_s = oss.str();
+	assert(MD5_STRING_SIZE == md5_s.size());
+	
+	return md5_s;
+}
+
+bool	IsMainThread(void) const;
+	
+//---- Is Main Thread ? -------------------------------------------------------
+
+bool	Daemon::IsMainThread(void) const
+{
+	return (this_thread::get_id() == m_InitThreadID);
+}
+

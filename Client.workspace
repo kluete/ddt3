@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeLite_Workspace Name="Client" Database="./Client/Client.tags">
+  <Project Name="Client" Path="Client/Client.project" Active="Yes"/>
+  <Environment>
+    <![CDATA[]]>
+  </Environment>
+  <Project Name="juce_lib" Path="../../git/juce_lib/juce_lib.project" Active="No"/>
+  <BuildMatrix>
+    <WorkspaceConfiguration Name="Debug" Selected="yes">
+      <Environment/>
+      <Project Name="juce_lib" ConfigName="Debug"/>
+      <Project Name="Client" ConfigName="Debug"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Release" Selected="yes">
+      <Environment/>
+      <Project Name="Client" ConfigName="Release"/>
+      <Project Name="juce_lib" ConfigName="Debug"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Debug Win64" Selected="yes">
+      <Environment/>
+      <Project Name="Client" ConfigName="Debug Win64"/>
+      <Project Name="juce_lib" ConfigName="Debug"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Debug OSX 64" Selected="yes">
+      <Environment/>
+      <Project Name="Client" ConfigName="Debug OSX 64"/>
+      <Project Name="juce_lib" ConfigName="Debug"/>
+    </WorkspaceConfiguration>
+  </BuildMatrix>
+</CodeLite_Workspace>

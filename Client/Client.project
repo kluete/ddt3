@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeLite_Project Name="Client" InternalType="GUI">
+  <Description/>
+  <Dependencies/>
+  <VirtualDirectory Name="source">
+    <File Name="src/main.cpp"/>
+    <File Name="src/TopNotebook.cpp"/>
+    <VirtualDirectory Name="common">
+      <File Name="src/common/MessageQueue.cpp"/>
+      <File Name="src/common/CommonDaemon.cpp"/>
+      <File Name="src/common/CommonClient.cpp"/>
+      <File Name="src/common/Collected.cpp"/>
+      <File Name="src/common/FileManifest.cpp"/>
+      <File Name="src/common/FileSystem.cpp"/>
+      <File Name="src/common/DirSystem.cpp"/>
+      <File Name="src/common/FileSystem_Nix.cpp"/>
+      <File Name="src/common/FileSystem_Win.cpp" ExcludeProjConfig="Debug;Debug OSX 64;Debug gcc49;Debug wxNoLibcxx;Release"/>
+      <File Name="../../../git/lxUtils/src/xstring.cpp"/>
+      <File Name="../../../git/lxUtils/src/xutils.cpp"/>
+      <File Name="src/common/FileName.cpp"/>
+      <VirtualDirectory Name="stream">
+        <File Name="../../../git/lxUtilsDev/src/stream/DataInputStream.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/stream/DataOutputStream.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/stream/MemoryInputStream.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/stream/MemoryOutputStream.cpp"/>
+      </VirtualDirectory>
+      <File Name="../../../git/lxUtils/src/color.cpp"/>
+      <File Name="../../../git/lxUtils/src/ulog.cpp"/>
+      <VirtualDirectory Name="cairo">
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/CairoContext.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/CairoFont.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/CairoPattern.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/CairoRenderer.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/CairoSurface.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/CairoWxUtils.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/Grid.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/SurfaceFont.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/TipScroller.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/bar.cpp" ExcludeProjConfig=""/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/celldata.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/column.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/scrollable.cpp"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/src/scroller.cpp"/>
+        <VirtualDirectory Name="imp">
+          <File Name="../../../git/lxUtilsDev/dev/cairo/imp/imp/CompositeContextImp.cpp"/>
+          <File Name="../../../git/lxUtilsDev/dev/cairo/imp/imp/GridImp.cpp"/>
+          <File Name="../../../git/lxUtilsDev/dev/cairo/imp/imp/ModalTextEdit.cpp"/>
+          <File Name="../../../git/lxUtilsDev/dev/cairo/imp/imp/ScrollableEventImp.cpp"/>
+        </VirtualDirectory>
+      </VirtualDirectory>
+      <VirtualDirectory Name="misc">
+        <File Name="../../../git/lxUtilsDev/src/misc/geometry.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/misc/stopwatch.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/misc/FixedFreeType.cpp"/>
+      </VirtualDirectory>
+      <File Name="src/common/FileSystemDisk.cpp"/>
+      <VirtualDirectory Name="juce">
+        <File Name="../../../git/lxUtilsDev/src/jucier/JuceApp.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/jucier/jCrossThreader.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/jucier/jeometry.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/jucier/jFileTree.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/jucier/jairo.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/jucier/jOrgSizer.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/jucier/jfont.cpp" ExcludeProjConfig=""/>
+        <File Name="../../../git/lxUtilsDev/src/jucier/jwxBinder.cpp"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="event">
+        <File Name="../../../git/lxUtilsDev/src/event/xdelay_slot.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/event/xsig_slot.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/wx/CrossThreaderWx.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/event/CrossThreaderPassThru.cpp"/>
+      </VirtualDirectory>
+    </VirtualDirectory>
+    <File Name="src/ProjectPrefs.cpp"/>
+    <File Name="src/Controller.cpp"/>
+    <File Name="src/Client.cpp"/>
+    <File Name="src/ClientTCP.cpp"/>
+    <VirtualDirectory Name="notepages">
+      <File Name="src/BreakpointsListCtrl.cpp"/>
+      <File Name="src/OutputTextCtrl.cpp"/>
+      <File Name="src/ProjectListCtrl.cpp"/>
+      <File Name="src/StyledSourceCtrl.cpp"/>
+      <File Name="src/TraceBackList.cpp"/>
+      <File Name="src/VarViewCtrl.cpp"/>
+      <File Name="src/SearchBar.cpp"/>
+      <File Name="src/MemoryViewCtrl.cpp"/>
+      <File Name="src/SearchResultsPanel.cpp"/>
+      <File Name="src/SoloLogFrame.cpp"/>
+      <File Name="src/FunctionsComponent.cpp"/>
+      <File Name="src/VarViewComponent.cpp"/>
+      <File Name="src/VarViewCommon.cpp"/>
+      <File Name="src/MyLookNFeel.cpp"/>
+    </VirtualDirectory>
+    <File Name="src/TopFrame.cpp"/>
+    <File Name="src/SourceFileClass.cpp"/>
+    <File Name="src/Toolbar.cpp"/>
+    <File Name="src/BottomNotebook.cpp"/>
+    <File Name="src/EvtFilter.cpp"/>
+    <File Name="src/WatchBag.cpp"/>
+    <File Name="src/ClientState.cpp"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="include">
+    <File Name="inc/SourceFileClass.h"/>
+    <File Name="inc/UIConst.h"/>
+    <VirtualDirectory Name="common">
+      <File Name="inc/common/ddt/sharedDefs.h"/>
+      <File Name="inc/common/ddt/MessageQueue.h"/>
+      <File Name="inc/common/ddt/CommonDaemon.h"/>
+      <File Name="inc/common/ddt/CommonClient.h"/>
+      <File Name="inc/common/ddt/Collected.h"/>
+      <VirtualDirectory Name="stream">
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/DataInputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/DataOutputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/MemDataInputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/MemDataOutputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/MemoryInputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/MemoryOutputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/StreamEndianness.h"/>
+      </VirtualDirectory>
+      <File Name="inc/common/ddt/FileManifest.h"/>
+      <File Name="inc/common/ddt/FileSystem.h"/>
+      <VirtualDirectory Name="platform">
+        <File Name="inc/common/ddt/FileSystem_Linux.h" ExcludeProjConfig="Debug OSX 64"/>
+        <File Name="inc/common/ddt/FileSystem_OSX.h" ExcludeProjConfig="Debug"/>
+        <File Name="inc/common/ddt/FileSystem_Windows.h" ExcludeProjConfig="Debug"/>
+        <File Name="inc/common/ddt/os_FileSystem.h"/>
+      </VirtualDirectory>
+      <File Name="../../../git/lxUtils/inc/lx/xstring.h"/>
+      <File Name="../../../git/lxUtils/inc/lx/column.h"/>
+      <File Name="../../../git/lxUtils/inc/lx/xutils.h"/>
+      <File Name="inc/common/ddt/sharedLog.h"/>
+      <File Name="../../../git/lxUtils/inc/lx/color.h"/>
+      <File Name="../../../git/lxUtils/inc/lx/ulog.h"/>
+      <VirtualDirectory Name="misc">
+        <File Name="../../../git/lxUtilsDev/inc/lx/misc/stopwatch.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/misc/autolock.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/misc/FixedFreeType.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/misc/geometry.h"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="juce">
+        <File Name="../../../git/lxUtilsDev/inc/lx/juce/JuceBridge.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/juce/jFileTree.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/juce/jOrgSizer.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/juce/jeometry.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/juce/jfont.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/juce/jwxBinder.h"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="event">
+        <File Name="../../../git/lxUtilsDev/inc/lx/event/sigslot.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/event/xdelay_slot.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/event/xsig_slot.h"/>
+      </VirtualDirectory>
+    </VirtualDirectory>
+    <File Name="inc/Controller.h"/>
+    <File Name="inc/TopNotebook.h"/>
+    <File Name="inc/ProjectPrefs.h"/>
+    <File Name="inc/ClientTCP.h"/>
+    <File Name="inc/Client.h"/>
+    <VirtualDirectory Name="notepages">
+      <File Name="inc/OutputTextCtrl.h"/>
+      <File Name="inc/StyledSourceCtrl.h"/>
+      <File Name="inc/VarViewCtrl.h"/>
+      <File Name="inc/SearchBar.h"/>
+      <File Name="inc/SearchResultsPanel.h"/>
+      <VirtualDirectory Name="grid">
+        <File Name="../../../git/lxUtils/inc/lx/CairoRenderer.h"/>
+        <File Name="../../../git/lxUtils/inc/lx/celldata.h"/>
+        <File Name="../../../git/lxUtils/inc/lx/gridevent.h"/>
+        <File Name="../../../git/lxUtils/inc/lx/renderer.h"/>
+        <File Name="../../../git/lxUtils/inc/lx/surface.h"/>
+        <File Name="../../../git/lxUtils/inc/lx/font.h"/>
+        <File Name="../../../git/lxUtils/inc/lx/context.h"/>
+        <File Name="../../../git/lxUtils/inc/lx/CairoContext.h"/>
+        <File Name="../../../git/lxUtils/inc/lx/scrollable.h"/>
+        <File Name="../../../git/lxUtils/inc/lx/scroller.h"/>
+        <File Name="../../../git/lxUtils/inc/lx/renderable.h"/>
+        <VirtualDirectory Name="imp">
+          <File Name="../../../git/lxUtilsDev/dev/cairo/imp/lx/CompositeContextImp.h"/>
+          <File Name="../../../git/lxUtilsDev/dev/cairo/imp/lx/GridImp.h"/>
+          <File Name="../../../git/lxUtilsDev/dev/cairo/imp/lx/ModalTextEdit.h"/>
+          <File Name="../../../git/lxUtilsDev/dev/cairo/imp/lx/ScrollableEventImp.h"/>
+        </VirtualDirectory>
+        <File Name="../../../git/lxUtils/inc/lx/TipScroller.h"/>
+        <File Name="../../../git/lxUtils/inc/lx/CairoPattern.h"/>
+        <File Name="../../../git/lxUtilsDev/dev/cairo/inc/lx/Grid.h"/>
+      </VirtualDirectory>
+      <File Name="inc/CodeEditor.h"/>
+    </VirtualDirectory>
+    <File Name="inc/TopFrame.h"/>
+    <File Name="inc/BottomNotebook.h"/>
+    <File Name="inc/EvtFilter.h"/>
+    <File Name="inc/WatchBag.h"/>
+    <File Name="inc/sigImp.h"/>
+    <File Name="inc/ClientState.h"/>
+    <File Name="inc/logImp.h"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="res">
+    <File Name="res/deleted.txt"/>
+    <VirtualDirectory Name="pix">
+      <File Name="res/cancel.png"/>
+      <File Name="res/deffile.xpm"/>
+      <File Name="res/empty.png"/>
+      <File Name="res/fileopen.xpm"/>
+      <File Name="res/inhance_icon16x16.png"/>
+      <File Name="res/minus.png"/>
+      <File Name="res/play.png"/>
+      <File Name="res/plus.png"/>
+      <File Name="res/quit.xpm"/>
+      <File Name="res/red_dot.png"/>
+      <File Name="res/save.png"/>
+      <File Name="res/step_into.png"/>
+      <File Name="res/step_lines.png"/>
+      <File Name="res/step_out.png"/>
+      <File Name="res/step_over.png"/>
+      <File Name="res/stop.png"/>
+      <File Name="res/connect.png"/>
+      <File Name="res/disconnect.png"/>
+      <File Name="res/close.xpm"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="lua">
+    <File Name="../lua/ddt_demo.lua"/>
+    <File Name="../lua/ddt_sub_file.lua"/>
+    <File Name="../lua/big_string.lua"/>
+    <File Name="../lua/mini_func.lua"/>
+    <File Name="../lua/jitter.lua"/>
+    <File Name="../lua/scimark.lua"/>
+    <File Name="../lua/unpack_dir.lua"/>
+    <File Name="../lua/geoip.lua"/>
+  </VirtualDirectory>
+  <Dependencies Name="Debug">
+    <Project Name="juce_lib"/>
+  </Dependencies>
+  <Settings Type="Executable">
+    <GlobalSettings>
+      <Compiler Options="-Wall;-Wfatal-errors;-Wno-sign-compare;-Wno-parentheses;-Wshadow;-Wno-unused-local-typedef" C_Options="" Assembler="">
+        <IncludePath Value="$(JUCE_DIR)/modules"/>
+        <IncludePath Value="./inc"/>
+        <IncludePath Value="./inc/common"/>
+        <IncludePath Value="./res"/>
+        <IncludePath Value="$(ASIO_DIR)"/>
+        <IncludePath Value="$(LXUTILS)/inc"/>
+        <IncludePath Value="$(LXUTILS_DEV)/inc"/>
+        <IncludePath Value="$(LXUTILS_DEV)/dev/cairo/inc"/>
+        <IncludePath Value="$(LXUTILS_DEV)/dev/cairo/imp"/>
+        <IncludePath Value="$(JUCE_LIB_DIR)/config"/>
+        <Preprocessor Value="JUCE_LINUX=1"/>
+        <Preprocessor Value="LX_JUCE=1"/>
+        <Preprocessor Value="LX_WX=1"/>
+        <Preprocessor Value="JUCE_APP_CONFIG_HEADER=\&quot;AppConfig.h\&quot;"/>
+        <Preprocessor Value="ASIO_STANDALONE"/>
+        <Preprocessor Value="ASIO_HAS_STD_ADDRESSOF"/>
+        <Preprocessor Value="ASIO_HAS_THREADS"/>
+        <Preprocessor Value="ASIO_HAS_STD_ATOMIC"/>
+        <Preprocessor Value="ASIO_HAS_STD_CHRONO"/>
+        <Preprocessor Value="ASIO_HAS_CSTDINT"/>
+        <Preprocessor Value="ASIO_HAS_STD_SYSTEM_ERROR"/>
+        <Preprocessor Value="ASIO_HAS_STD_TYPE_TRAITS"/>
+        <Preprocessor Value="ASIO_HAS_STD_SHARED_PTR"/>
+        <Preprocessor Value="ASIO_HAS_STD_ARRAY"/>
+      </Compiler>
+      <Linker Options=""/>
+      <ResourceCompiler Options=""/>
+    </GlobalSettings>
+    <Configuration Name="Debug" CompilerType="clang++" DebuggerType="LLDB Debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-std=c++1y;$(shell wx-config --cxxflags --debug=yes);-stdlib=libc++;-pthread" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(CATCH_DIR)"/>
+        <IncludePath Value="$(FREETYPE_DIR)/include/freetype2"/>
+        <Preprocessor Value="__WX__"/>
+        <Preprocessor Value="LX_WX=1"/>
+        <Preprocessor Value="LX_JUCE=1"/>
+        <Preprocessor Value="JUCE_DEBUG=1"/>
+        <Preprocessor Value="RUN_UNIT_TESTS=0"/>
+      </Compiler>
+      <Linker Options="$(shell wx-config --debug=yes --libs std,stc,richtext);-L/usr/X11R6/lib/;-lX11;-lXext;-lXinerama" Required="yes">
+        <LibraryPath Value="$(JUCE_LIB_DIR)/lib"/>
+        <LibraryPath Value="$(FREETYPE_DIR)/lib"/>
+        <Library Value="cryptopp"/>
+        <Library Value="juce_cxx"/>
+        <Library Value="freetype"/>
+      </Linker>
+      <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/client64d.bin" IntermediateDirectory=".build_$(ConfigurationName)" Command="client64d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="no" IsGUIProgram="yes" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="libcxx">
+        <![CDATA[WXDIR=$LXBUILD/wx_dbg_libcxx
+FREETYPE_DIR=$(LXBUILD)/freetype_release]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands># set target-wide-charset UTF-32
+# set target-charset auto UTF-8
+# set host-charset UTF-8
+# set opaque-type-resolution on
+
+source ~/.gdbinit
+</StartupCommands>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName/>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(FREETYPE_DIR)/include/freetype2</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Debug OSX 64" CompilerType="clang++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;$(shell $(WXCONF_PATH) --cxxflags --debug=yes);-std=c++11;-stdlib=libc++;" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="./inc/common/ddt/osx"/>
+        <Preprocessor Value="__WX__"/>
+        <Preprocessor Value="USE_CXX0X"/>
+      </Compiler>
+      <Linker Options="$(shell $(WXCONF_PATH) --debug=yes --libs std);-stdlib=libc++" Required="yes">
+        <LibraryPath Value="$(RE2)/obj"/>
+        <Library Value="c++"/>
+        <Library Value="libre2.a"/>
+      </Linker>
+      <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/Client64d.bin" IntermediateDirectory="$(VCTEMP)/$(ProjectName)/$(ConfigurationName)" Command="./Client64d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="no" IsGUIProgram="yes" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[#uses MONOLITHIC wx build
+WXCONF_PATH=$WXTRUNK/build_libpp/wx-config]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths>/usr/include/c++/4.8</DebuggerSearchPaths>
+        <PostConnectCommands/>
+        <StartupCommands># set target-wide-charset UTF-32
+# set target-charset auto UTF-8
+# set host-charset UTF-8
+# set opaque-type-resolution on
+
+source ~/.gdbinit
+</StartupCommands>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">echo "RE2"</Command>
+        <Command Enabled="yes">cd ../../re2 &amp;&amp; $(MAKE) -Bf makefil2</Command>
+      </PreBuild>
+      <PostBuild>
+        <Command Enabled="no"># rm -f $(HOME)/"."$(ProjectName)"_inst"</Command>
+      </PostBuild>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName/>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR_52)/src
+$(RE2)/re2</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Debug Win64" CompilerType="Clang" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;`wx-config --prefix=c:\git\wxTrunk --cxxflags --debug=yes);-m64;" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <Preprocessor Value="__WX__"/>
+      </Compiler>
+      <Linker Options="$(shell $(WXCONF_PATH) --debug=yes --libs std,stc,richtext);" Required="yes">
+        <Library Value="fontconfig"/>
+      </Linker>
+      <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/Client64d.exe" IntermediateDirectory="$(VCTEMP)/$(ProjectName)" Command="./Client64d.exe" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="no" IsGUIProgram="yes" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[# WXCONF_PATH=$WXTRUNK/build_dbg/wx-config]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths>/usr/include/c++/4.8</DebuggerSearchPaths>
+        <PostConnectCommands/>
+        <StartupCommands># set target-wide-charset UTF-32
+# set target-charset auto UTF-8
+# set host-charset UTF-8
+# set opaque-type-resolution on
+
+source ~/.gdbinit
+</StartupCommands>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">env</Command>
+      </PreBuild>
+      <PostBuild>
+        <Command Enabled="no"># rm -f $(HOME)/"."$(ProjectName)"_inst"</Command>
+      </PostBuild>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName/>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR_52)/src
+$(RE2)/re2</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Debug gcc49" CompilerType="gnu g++ 4.9" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="prepend" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-std=c++1y;$(shell wx-config --cxxflags --debug=yes);-I$(GCC49_HEADERS)" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(JUCE_DIR)"/>
+        <IncludePath Value="$(JUCE_LIB_DIR)/config"/>
+        <IncludePath Value="$(CATCH_DIR)"/>
+        <IncludePath Value="$(FREETYPE_DIR)/include/freetype2"/>
+        <Preprocessor Value="__WX__"/>
+        <Preprocessor Value="LX_WX=1"/>
+        <Preprocessor Value="LX_JUCE=1"/>
+        <Preprocessor Value="DEBUG"/>
+      </Compiler>
+      <Linker Options="$(shell wx-config --debug=yes --libs std,stc,richtext);-L/usr/X11R6/lib/;-lX11;-lXext;-lXinerama;" Required="yes">
+        <LibraryPath Value="$(JUCE_LIB_DIR)/lib"/>
+        <LibraryPath Value="$(FREETYPE_DIR)/lib"/>
+        <Library Value="cryptopp"/>
+        <Library Value="juce_stdcxx"/>
+        <Library Value="freetype"/>
+      </Linker>
+      <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/client64d.bin" IntermediateDirectory=".build_$(ConfigurationName)" Command="client64d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="no" IsGUIProgram="yes" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[WXDIR=$LXBUILD/wx_dbg_gcc49
+FREETYPE_DIR=$(LXBUILD)/freetype_debug]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands># set target-wide-charset UTF-32
+# set target-charset auto UTF-8
+# set host-charset UTF-8
+# set opaque-type-resolution on
+
+source ~/.gdbinit
+</StartupCommands>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild>
+        <Command Enabled="no"># rm -f $(HOME)/"."$(ProjectName)"_inst"</Command>
+        <Command Enabled="no"># ldd $(OutputFile) | grep -E '\blibstdc++'</Command>
+      </PostBuild>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName/>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR_52)/src
+$(RE2)/re2</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Debug wxNoLibcxx" CompilerType="clang++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="overwrite" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-std=c++11;$(shell $(WXCONF_PATH) --cxxflags --debug=yes);-m64;-stdlib=libstdc++;-I$(CLANG_HEADERS)" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <Preprocessor Value="__WX__"/>
+      </Compiler>
+      <Linker Options="$(shell $(WXCONF_PATH) --debug=yes --libs std,stc,richtext);$(shell echo $(LX_GCC_LINK_S));-static-libgcc;-static-libstdc++;-lm;-ldl;-L$(RE2);-lre2_clang_stdcxx;" Required="yes"/>
+      <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/client64d.bin" IntermediateDirectory="$(VCTEMP)/$(ProjectName)/$(ConfigurationName)" Command="client64d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="no" IsGUIProgram="yes" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="libstdc++">
+        <![CDATA[WXCONF_PATH=$LXBUILD/wx_dbg_clang/wx-config]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands># set target-wide-charset UTF-32
+# set target-charset auto UTF-8
+# set host-charset UTF-8
+# set opaque-type-resolution on
+
+source ~/.gdbinit
+</StartupCommands>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">echo "RE2"</Command>
+        <Command Enabled="yes">cd ../../re2 &amp;&amp; $(MAKE) -f makefile_linux_clang_libstdcxx</Command>
+        <Command Enabled="yes"/>
+      </PreBuild>
+      <PostBuild>
+        <Command Enabled="no"># rm -f $(HOME)/"."$(ProjectName)"_inst"</Command>
+        <Command Enabled="no"># ldd $(OutputFile) | grep -E '\blibstdc++'</Command>
+      </PostBuild>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName/>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(RE2)/re2
+$(ASIO_DIR)</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Release" CompilerType="gnu g++ 4.9" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-O3;$(shell $(WXCONF_PATH) --cxxflags --debug=no);-m64;-std=c++11;" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <Preprocessor Value="__WX__"/>
+      </Compiler>
+      <Linker Options="$(shell $(WXCONF_PATH) --debug=no --libs std,stc,richtext);$(shell $(LINK_CONF) $(ProjectName));" Required="yes">
+        <LibraryPath Value="$(RE2)/obj"/>
+        <Library Value="re2.a"/>
+      </Linker>
+      <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/client64.bin" IntermediateDirectory="$(VCTEMP)/$(ProjectName)/$(ConfigurationName)" Command="client64.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="no" IsGUIProgram="yes" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[WXCONF_PATH=$WXTRUNK/build_REL/wx-config
+# echo "$$LD_LIBRARY_PATH"]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">echo "RE2"</Command>
+        <Command Enabled="yes">cd ../../re2 &amp;&amp; $(MAKE) -f makefile_linux</Command>
+        <Command Enabled="yes"/>
+      </PreBuild>
+      <PostBuild>
+        <Command Enabled="yes">rm -f $(HOME)/"."$(ProjectName)"_inst"</Command>
+        <Command Enabled="yes">ldd $(WorkspacePath)/Client64.bin | grep -E '\blibstdc++'</Command>
+        <Command Enabled="yes"/>
+      </PostBuild>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName/>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK_DIR)/include</SearchPaths>
+      </Completion>
+    </Configuration>
+  </Settings>
+</CodeLite_Project>

@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeLite_Project Name="Daemon" InternalType="Console">
+  <Plugins>
+  </Plugins>
+  <Description/>
+  <Dependencies/>
+  <VirtualDirectory Name="source">
+    <File Name="src/main.cpp" ExcludeProjConfig=""/>
+    <VirtualDirectory Name="common">
+      <File Name="../Client/src/common/Collected.cpp"/>
+      <File Name="../Client/src/common/CommonClient.cpp"/>
+      <File Name="../Client/src/common/CommonDaemon.cpp"/>
+      <File Name="../Client/src/common/MessageQueue.cpp"/>
+      <File Name="../../../git/lxUtils/src/xstring.cpp"/>
+      <File Name="../Client/src/common/FileName.cpp"/>
+      <File Name="../Client/src/common/FileSystem.cpp"/>
+      <File Name="../Client/src/common/FileSystem_Nix.cpp" ExcludeProjConfig="Debug"/>
+      <File Name="../Client/src/common/FileSystem_Win.cpp" ExcludeProjConfig="Debug;Debug 32;Debug clang 32;Debug gcc32;LuaJIT Debug clang;LuaJIT Release"/>
+      <VirtualDirectory Name="stream">
+        <File Name="../../../git/lxUtilsDev/src/stream/DataInputStream.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/stream/DataOutputStream.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/stream/MemoryInputStream.cpp"/>
+        <File Name="../../../git/lxUtilsDev/src/stream/MemoryOutputStream.cpp"/>
+      </VirtualDirectory>
+      <File Name="../../../git/lxUtils/src/xutils.cpp"/>
+      <File Name="../../../git/lxUtils/src/ulog.cpp"/>
+      <VirtualDirectory Name="misc">
+        <File Name="../../../git/lxUtilsDev/src/termlog.cpp"/>
+      </VirtualDirectory>
+      <File Name="../Client/src/common/FileSystemDisk.cpp" ExcludeProjConfig="Debug"/>
+    </VirtualDirectory>
+    <File Name="src/LuaGlue.cpp"/>
+    <File Name="src/VarCollectors.cpp"/>
+    <File Name="src/ServerTCP.cpp"/>
+    <File Name="src/Daemon.cpp"/>
+    <File Name="src/Stack.cpp"/>
+    <File Name="src/LoadOverrider.cpp"/>
+    <File Name="src/DaemonJIT.cpp" ExcludeProjConfig="Debug 32;Debug clang 32;Debug gcc32;Debug gcc49;Debug wxNoLibcxx"/>
+    <File Name="src/test_FileName.cpp" ExcludeProjConfig=""/>
+    <File Name="src/DaemonLog.cpp"/>
+  </VirtualDirectory>
+  <Dependencies Name="Debug"/>
+  <VirtualDirectory Name="include">
+    <VirtualDirectory Name="common">
+      <File Name="../Client/inc/common/ddt/Collected.h"/>
+      <File Name="../Client/inc/common/ddt/CommonClient.h"/>
+      <File Name="../Client/inc/common/ddt/CommonDaemon.h"/>
+      <File Name="../Client/inc/common/ddt/MessageQueue.h"/>
+      <File Name="../Client/inc/common/ddt/sharedDefs.h"/>
+      <VirtualDirectory Name="stream">
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/DataInputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/DataOutputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/MemDataInputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/MemDataOutputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/MemoryInputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/MemoryOutputStream.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/stream/StreamEndianness.h"/>
+      </VirtualDirectory>
+      <File Name="../Client/inc/common/ddt/FileSystem.h"/>
+      <VirtualDirectory Name="platform">
+        <File Name="../Client/inc/common/ddt/FileSystem_Linux.h"/>
+        <File Name="../Client/inc/common/ddt/FileSystem_OSX.h"/>
+        <File Name="../Client/inc/common/ddt/FileSystem_Windows.h"/>
+        <File Name="../Client/inc/common/ddt/os_FileSystem.h"/>
+      </VirtualDirectory>
+      <File Name="../../../git/lxUtils/inc/lx/xstring.h"/>
+      <File Name="../../../git/lxUtils/inc/lx/xutils.h"/>
+      <File Name="../Client/inc/common/ddt/sharedLog.h"/>
+      <File Name="../../../git/catch/single_include/catch.hpp"/>
+      <File Name="../../../git/lxUtils/inc/lx/ulog.h"/>
+      <VirtualDirectory Name="misc">
+        <File Name="../../../git/lxUtilsDev/inc/lx/misc/autolock.h"/>
+        <File Name="../../../git/lxUtilsDev/inc/lx/misc/termLog.h"/>
+      </VirtualDirectory>
+    </VirtualDirectory>
+    <File Name="inc/LuaGlue.h"/>
+    <File Name="inc/Stack.h"/>
+    <File Name="inc/VarCollectors.h"/>
+    <File Name="inc/ServerTCP.h"/>
+    <File Name="inc/Daemon.h"/>
+    <File Name="inc/DaemonJIT.h"/>
+    <File Name="inc/DaemonImp.h"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="res">
+    <File Name="res/deleted.txt"/>
+  </VirtualDirectory>
+  <Settings Type="Executable">
+    <GlobalSettings>
+      <Compiler Options="-Wall;-Wfatal-errors;-Wno-sign-compare;-Wno-parentheses;-Wshadow" C_Options="" Assembler="">
+        <IncludePath Value="./inc"/>
+        <IncludePath Value="../Client/inc/common"/>
+        <IncludePath Value="$(ASIO_DIR)"/>
+        <IncludePath Value="$(HASHLIBPP)/inc"/>
+        <IncludePath Value="$(LXUTILS)/inc"/>
+        <IncludePath Value="$(LXUTILS_DEV)/inc"/>
+        <Preprocessor Value="ASIO_STANDALONE"/>
+        <Preprocessor Value="ASIO_HEADER_ONLY"/>
+        <Preprocessor Value="ASIO_HAS_STD_CHRONO"/>
+      </Compiler>
+      <Linker Options=""/>
+      <ResourceCompiler Options=""/>
+    </GlobalSettings>
+    <Configuration Name="Debug" CompilerType="clang++" DebuggerType="LLDB Debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-stdlib=libc++;-std=c++1y" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(LUA_DIR)/include"/>
+        <IncludePath Value="$(CATCH_DIR)"/>
+        <Preprocessor Value="LUA_51=0"/>
+        <Preprocessor Value="DDT_JIT=0"/>
+        <Preprocessor Value="LUA_CXX=0"/>
+        <Preprocessor Value="LUA_USE_POPEN=1"/>
+      </Compiler>
+      <Linker Options="-pthread;-fPIC;-stdlib=libc++;$(LOCAL_CXX_LIBS)" Required="yes">
+        <LibraryPath Value="$(LUA_DIR)/lib"/>
+        <Library Value="m"/>
+        <Library Value="dl"/>
+        <Library Value="c++"/>
+        <Library Value="lua"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/daemon64d.bin" IntermediateDirectory=".build_$(ConfigurationName)" Command="./daemon64d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="no" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="libcxx">
+        <![CDATA[LUA_DIR=$LXBUILD/lua532]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR_52)/src
+$(ASIO_DIR)
+$(CLANG_HEADERS)</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Debug Lib shared x64" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Dynamic Library" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;$(shell $(WXCONF_PATH) --cxxflags --debug=yes);-m64;-pedantic" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="."/>
+        <Preprocessor Value="__WX__"/>
+        <Preprocessor Value="DDT_SHARED_LIB"/>
+      </Compiler>
+      <Linker Options="$(shell $(WXCONF_PATH) --debug=yes --libs);" Required="yes">
+        <LibraryPath Value="$(LUADIR_52)/bin"/>
+        <Library Value="liblua522_x64d"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/DaemonLib64d.so" IntermediateDirectory="$(VCTEMP)/$(ProjectName)" Command="" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[WXCONF_PATH=$WXTRUNK/build_dbg/wx-config]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR_52)/src
+$(ASIO_DIR)</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Debug OSX" CompilerType="clang++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-std=c++11;-stdlib=libc++;" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="../Client/inc/common/ddt/osx"/>
+        <IncludePath Value="$(LUADIR_52)/src"/>
+      </Compiler>
+      <Linker Options="-stdlib=libc++;" Required="yes">
+        <LibraryPath Value="$(LUADIR_52)/src"/>
+        <LibraryPath Value="$(RE2)/obj"/>
+        <Library Value="liblua.a"/>
+        <Library Value="libre2.a"/>
+        <Library Value="m"/>
+        <Library Value="dl"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/Daemon64d.bin" IntermediateDirectory="$(VCTEMP)/$(ProjectName)/$(ConfigurationName)" Command="./Daemon64d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[WXCONF_PATH=$WXTRUNK/build_dbg/wx-config
+LUA_PLATFORM=macosx
+RE2_MAKEFILE=makefil2]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths>/usr/include/c++/4.8</DebuggerSearchPaths>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">echo "lua 5.2.2"</Command>
+        <Command Enabled="yes">cd ../../lua-5.2.2/src &amp;&amp; $(MAKE) -Bk $(LUA_PLATFORM)</Command>
+        <Command Enabled="yes">echo "RE2"</Command>
+        <Command Enabled="yes">cd ../../re2 &amp;&amp; $(MAKE) -Bf makefil2</Command>
+      </PreBuild>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR_52)/src
+$(ASIO_DIR)</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Debug Valgrind" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-m64;" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(LUADIR_52)/src"/>
+        <Preprocessor Value="DDT_DAEMON_LOG"/>
+      </Compiler>
+      <Linker Options="-pthread;-m64;-fPIC" Required="yes">
+        <LibraryPath Value="$(LUADIR_52)/src"/>
+        <LibraryPath Value="$(RE2)/obj"/>
+        <Library Value="m"/>
+        <Library Value="liblua.a"/>
+        <Library Value="dl"/>
+        <Library Value="libre2.a"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/daemon64d.bin" IntermediateDirectory="$(VCTEMP)/$(ProjectName)/$(ConfigurationName)" Command="./daemon64d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[WXCONF_PATH=$WXTRUNK/build_dbg/wx-config
+LUA_PLATFORM=linux
+RE2_MAKEFILE=makefile_linux]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths>/usr/include/c++/4.8</DebuggerSearchPaths>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">echo "lua 5.2"</Command>
+        <Command Enabled="yes">cd ../../lua-5.2.3/src &amp;&amp; $(MAKE) -k linux</Command>
+        <Command Enabled="yes">echo "RE2"</Command>
+        <Command Enabled="yes">cd ../../re2 &amp;&amp; $(MAKE) -f $(RE2_MAKEFILE)</Command>
+      </PreBuild>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR_52)/src
+$(ASIO_DIR)</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Debug clang 32" CompilerType="clang++" DebuggerType="LLDB Debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="prepend" BuildResWithGlobalSettings="append">
+      <Compiler Options="-m32;-g;-O0;$(LUA_INCS);-std=c++14;-stdlib=libc++;-pthread" C_Options="-m32" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(CATCH_DIR)"/>
+        <Preprocessor Value="LUA_51=0"/>
+        <Preprocessor Value="DDT_JIT=0"/>
+        <Preprocessor Value="LUA_CXX=0"/>
+      </Compiler>
+      <Linker Options="-v;-m32;-pthread;-stdlib=libc++" Required="yes">
+        <LibraryPath Value="$(LUA_LIBS)"/>
+        <Library Value="m"/>
+        <Library Value="dl"/>
+        <Library Value="lua"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/daemond32_clang.bin" IntermediateDirectory=".build_$(ConfigurationName)" Command="./daemond32_clang.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="no" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="libcxx">
+        <![CDATA[LUA_DIR=$(LUADIR_52)
+LUA_INCS=-I$(LUA_DIR)/src
+LUA_LIBS=$(LUA_DIR)/src
+
+LUA_A=liblua.a
+LUA_PLATFORM=linux]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">MYCFLAGS=-m32</Command>
+        <Command Enabled="yes">MYLDFLAGS=-m32</Command>
+        <Command Enabled="yes">cd $(LUA_DIR)/src &amp;&amp; MAKEFLAGS="-m32 --jobserver-fds=3,4 -j -ek" $(MAKE) linux liblua.a</Command>
+        <Command Enabled="yes"/>
+      </PreBuild>
+      <PostBuild>
+        <Command Enabled="yes">scp ../daemond32_clang.bin lsk@salon:/home/lsk</Command>
+      </PostBuild>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR_52)/src
+$(ASIO_DIR)
+$(CLANG_HEADERS)</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Debug gcc32" CompilerType="gnu g++ 4.9" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="overwrite" BuildResWithGlobalSettings="append">
+      <Compiler Options="-m32;-g;-O0;-std=c++14;-static-libgcc;-static-libstdc++;-fno-stack-protector" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(LUADIR_52)/src"/>
+        <IncludePath Value="$(CATCH_DIR)"/>
+        <Preprocessor Value="LUA_51=0"/>
+        <Preprocessor Value="DDT_JIT=0"/>
+        <Preprocessor Value="LUA_CXX=0"/>
+      </Compiler>
+      <Linker Options="-v;-m32;-static;-L$(LUA_LIBS);-l$(SHORT_LUA_A);-ldl;-Wl,-E;-static-libgcc;-static-libstdc++;-lc" Required="yes"/>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/daemon32d.bin" IntermediateDirectory=".build_$(ConfigurationName)" Command="./daemon32d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="">
+        <![CDATA[LUA_DIR=$(LUADIR_52)
+LUA_INCS=-I$(LUA_DIR)/src -I$(LUA_DIR)/etc
+LUA_LIBS=$(LUA_DIR)/src
+
+#liblua build
+SHORT_LUA_A=lua
+LUA_A=lib$(SHORT_LUA_A).a
+LUA_PLATFORM=linux
+MYCFLAGS=-g -O0 -m32]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">echo "lua 5.2 pre-build"</Command>
+        <Command Enabled="yes"/>
+        <Command Enabled="yes">MYCFLAGS=-m32</Command>
+        <Command Enabled="yes">MYCPPFLAGS=-m32</Command>
+        <Command Enabled="yes">MYLDFLAGS=-m32</Command>
+        <Command Enabled="yes"/>
+        <Command Enabled="yes">cd $(LUADIR_52)/src &amp;&amp; MAKEFLAGS="-m32 -static --jobserver-fds=3,4 -j -ek" $(MAKE) linux liblua.a</Command>
+        <Command Enabled="yes"/>
+      </PreBuild>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR_52)/src
+$(ASIO_DIR)</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Debug gcc49" CompilerType="gnu g++ 4.9" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="prepend" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-m64;-std=c++11;-I$(GCC49_HEADERS);-std=c++11" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(LUADIR_52)/src"/>
+        <Preprocessor Value="LUA_51=0"/>
+        <Preprocessor Value="DDT_JIT=0"/>
+        <Preprocessor Value="LUA_CXX=0"/>
+      </Compiler>
+      <Linker Options="-pthread;-m64;-fPIC;-static-libgcc;-static-libstdc++;-L$(LUA_LIBS);-l$(SHORT_LUA_A)" Required="yes">
+        <LibraryPath Value="$(RE2)"/>
+        <Library Value="m"/>
+        <Library Value="dl"/>
+        <Library Value="libre2_gcc49.a"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/daemon64d.bin" IntermediateDirectory="$(VCTEMP)/$(ProjectName)/$(ConfigurationName)" Command="./daemon64d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="libstdc++">
+        <![CDATA[LUA_DIR=$(LUADIR_52)
+LUA_INCS=-I$(LUA_DIR)/src -I$(LUA_DIR)/etc
+LUA_LIBS=$(LUA_DIR)/src
+
+#liblua build
+SHORT_LUA_A=luad
+LUA_A=lib$(SHORT_LUA_A).a
+LUA_PLATFORM=linux
+MYCFLAGS=-g -O0
+
+#RE2 build
+RE2_MAKEFILE=makefile_linux_gcc49]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">echo "lua 5.2"</Command>
+        <Command Enabled="no"># cd $(LUADIR_52)/src &amp;&amp; $(MAKE) clean</Command>
+        <Command Enabled="yes">cd $(LUADIR_52)/src &amp;&amp; MAKEFLAGS=" --jobserver-fds=3,4 -j -ek" $(MAKE) $(LUA_PLATFORM)</Command>
+        <Command Enabled="yes"/>
+        <Command Enabled="yes">echo "RE2"</Command>
+        <Command Enabled="yes">cd $(RE2) &amp;&amp; $(MAKE) -f $(RE2_MAKEFILE)</Command>
+      </PreBuild>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR_52)/src
+$(ASIO_DIR)</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Debug wxNoLibcxx" CompilerType="Clang++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="prepend" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-m64;-std=c++11;-stdlib=libstdc++;-I$(GCC49_HEADERS)" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(LUADIR_52)/src"/>
+        <Preprocessor Value="LUA_51=0"/>
+        <Preprocessor Value="DDT_JIT=0"/>
+        <Preprocessor Value="LUA_CXX=0"/>
+      </Compiler>
+      <Linker Options="-pthread;-m64;-fPIC;$(shell echo $(LX_GCC_LINK_S));-static-libgcc;-static-libstdc++;-lm;-ldl;-L$(RE2);-lre2_clang_stdcxx;-L$(LUADIR_52)/src;-lluad" Required="yes"/>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/daemon64d.bin" IntermediateDirectory="$(VCTEMP)/$(ProjectName)/$(ConfigurationName)" Command="./daemon64d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="libstdc++">
+        <![CDATA[#liblua build
+LUA_PLATFORM=linux
+MYCFLAGS=-g -O0
+LUA_A=libluad.a
+#RE2 build
+RE2_MAKEFILE=makefile_linux_clang_libstdcxx]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">echo "lua 5.2"</Command>
+        <Command Enabled="yes">cd $(LUADIR_52)/src &amp;&amp; MAKEFLAGS=" --jobserver-fds=3,4 -j -ek" $(MAKE) $(LUA_PLATFORM)</Command>
+        <Command Enabled="yes"/>
+        <Command Enabled="yes">echo "RE2"</Command>
+        <Command Enabled="yes">cd $(RE2) &amp;&amp; $(MAKE) -f $(RE2_MAKEFILE)</Command>
+      </PreBuild>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR_52)/src
+$(ASIO_DIR)</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="LuaJIT Debug clang" CompilerType="clang++" DebuggerType="LLDB Debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-std=c++1y;-stdlib=libc++" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(LUA_DIR)"/>
+        <IncludePath Value="$(GIT_ROOT)/luajit/src"/>
+        <IncludePath Value="$(CATCH_DIR)"/>
+        <Preprocessor Value="LUA_51=1"/>
+        <Preprocessor Value="DDT_JIT=1"/>
+      </Compiler>
+      <Linker Options="-pthread;-fPIC;-Wl,-E;-stdlib=libc++" Required="yes">
+        <LibraryPath Value="$(LUADIR_JIT)/lib"/>
+        <Library Value="m"/>
+        <Library Value="luajit-5.1"/>
+        <Library Value="dl"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/daemon64d.bin" IntermediateDirectory=".build_$(ConfigurationName)" Command="./daemon64d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="libcxx">
+        <![CDATA[LUADIR_JIT=$LXBUILD/luajit_clang
+LUA_DIR=$(LUADIR_JIT)/include/luajit-2.0/]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(ASIO_DIR)
+/usr/include/c++/v1/
+$(LUA_DIR)/lua.h</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="LuaJIT Debug gcc-4.9" CompilerType="gnu g++ 4.9" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-m64;-std=c++11;$(LUA_INCS)" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <Preprocessor Value="LUA_51=1"/>
+        <Preprocessor Value="DDT_JIT=1"/>
+      </Compiler>
+      <Linker Options="-pthread;-m64;-fPIC;-static-libgcc;-static-libstdc++;" Required="yes">
+        <LibraryPath Value="$(RE2)"/>
+        <LibraryPath Value="$(LUA_LIBS)"/>
+        <Library Value="m"/>
+        <Library Value="libluajit-5.1.a"/>
+        <Library Value="dl"/>
+        <Library Value="libre2_gcc49.a"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/daemon64d.bin" IntermediateDirectory="$(VCTEMP)/$(ProjectName)/$(ConfigurationName)" Command="./daemon64d.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="libstdc++">
+        <![CDATA[LUADIR_JIT=$LXBUILD/luajit_gcc49
+LUA_DIR=$(LUADIR_JIT)/include/luajit-2.0
+LUA_INCS=-I$(LUADIR_JIT)/include/luajit-2.0 -I$(GIT_ROOT)/luajit/src
+LUA_LIBS=$(LUADIR_JIT)/lib
+
+LUA_A=libluad.a]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">echo "RE2"</Command>
+        <Command Enabled="yes">cd ../../re2 &amp;&amp; $(MAKE) -f makefile_linux_gcc49</Command>
+      </PreBuild>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(ASIO_DIR)
+/usr/include/c++/v1/
+$(LUA_DIR)</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="LuaJIT Release" CompilerType="clang++" DebuggerType="LLDB Debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-O3;-std=c++1y;-stdlib=libc++" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(LUA_DIR)"/>
+        <IncludePath Value="$(GIT_ROOT)/luajit/src"/>
+        <IncludePath Value="$(CATCH_DIR)"/>
+        <Preprocessor Value="LUA_51=1"/>
+        <Preprocessor Value="DDT_JIT=1"/>
+      </Compiler>
+      <Linker Options="-pthread;-fPIC;-stdlib=libc++" Required="yes">
+        <LibraryPath Value="$(LUADIR_JIT)/lib"/>
+        <Library Value="m"/>
+        <Library Value="luajit-5.1"/>
+        <Library Value="dl"/>
+        <Library Value="c++"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/daemon64.bin" IntermediateDirectory=".build_$(ConfigurationName)" Command="./daemon64.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="libcxx">
+        <![CDATA[LUADIR_JIT=$LXBUILD/luajit_clang
+LUA_DIR=$(LUADIR_JIT)/include/luajit-2.0/]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths>$(WXTRUNK)/include
+$(LUADIR)/src
+$(ASIO_DIR)
+/usr/include/c++/v1/</SearchPaths>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Release" CompilerType="Clang++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-O2;-m64;-Wno-unused-variable" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(LUADIR_52)/src"/>
+        <Preprocessor Value="DDT_DAEMON_LOG"/>
+      </Compiler>
+      <Linker Options="-pthread;-m64;-fPIC" Required="yes">
+        <LibraryPath Value="$(LUADIR_52)/src"/>
+        <LibraryPath Value="$(RE2)/obj"/>
+        <Library Value="m"/>
+        <Library Value="liblua.a"/>
+        <Library Value="dl"/>
+        <Library Value="libre2.a"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(WorkspacePath)/daemon64.bin" IntermediateDirectory="$(VCTEMP)/$(ProjectName)/$(ConfigurationName)" Command="./daemon64.bin" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[WXCONF_PATH=$WXTRUNK/build_REL/wx-config
+#liblua build
+LUA_PLATFORM=linux
+MYCFLAGS=-O3
+LUA_A=liblua.a
+#RE2 build
+RE2_MAKEFILE=makefile_linux]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild>
+        <Command Enabled="yes">echo "lua 5.2"</Command>
+        <Command Enabled="yes">cd $(LUADIR_52)/src &amp;&amp; MAKEFLAGS=" --jobserver-fds=3,4 -j -eBk" $(MAKE) $(LUA_PLATFORM)</Command>
+        <Command Enabled="yes">echo "RE2"</Command>
+        <Command Enabled="yes">cd $(RE2) &amp;&amp; $(MAKE) -f $(RE2_MAKEFILE)</Command>
+      </PreBuild>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+  </Settings>
+</CodeLite_Project>
