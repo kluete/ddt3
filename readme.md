@@ -13,8 +13,8 @@ Client and/or Daemon components depend on:
 
 * the header-only, _non-Boost_ version of [ASIO framework](http://www.think-async.com)
 * [Lua 5.2.3](https://github.com/LuaDist/lua/tree/5.2.3)
-* a customized/patched version of [wxWidgets](https://www.wxwidgets.org)
-* a commercial version of [JUCE](https://www.wxwidgets.org)
+* a customized/patched version of [wxWidgets](https://github.com/wxWidgets/wxWidgets/tree/WX_3_0_3_BRANCH)
+* a commercial version of [JUCE](https://github.com/WeAreROLI/JUCE)
 
 
 # Support platforms
@@ -26,6 +26,8 @@ Client and/or Daemon components depend on:
 
 
 # Build instructions
+
+The projects won't currently build given the heavy patching of underlying frameworks, especially wxWidgets.
 
 ```
 git clone https://github.com/kluete/ddt3.git
