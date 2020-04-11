@@ -1,9 +1,9 @@
 # About
 
-DDT3 is a remote debugger for the Lua language, written in ISO C++14, made of two components:
+DDT3 is a remote debugger for the Lua language, written in ISO C++14. It is made of two components:
 
-* stand-alone client application with user interface - running on development PC
-* minimal, headless remote component - embedded in debuggee on target device, hooked into Lua runtime
+1. stand-alone client application with user interface - running on development PC
+2. minimal, headless remote component - embedded in debuggee on target device, hooked into Lua runtime
 
 communication happens over TCP and UDP.
 
