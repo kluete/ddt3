@@ -31,15 +31,15 @@ This project depends on:
 
 # Supported platforms
 
-* Microsoft Windows 7+
-* Apple macOS 10+
+* Microsoft Windows 7-10
+* Apple macOS X
 * Apple iOS 8+ including simulator
-* Linux kernel 3.x+ with Gtk 2/3 
+* Linux kernel 3.x with Gtk 2/3 
 
 
 # Build instructions
 
-The projects won't currently buildm given the heavy patching of underlying frameworks, especially on wxWidgets.
+The projects won't currently build, given the heavy patching of underlying frameworks, especially on wxWidgets.
 
 ```
 git clone https://github.com/kluete/ddt3.git
