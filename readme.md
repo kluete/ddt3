@@ -2,21 +2,25 @@
 
 DDT3 is a remote debugger for the Lua language, written in ISO C++14, made of two components:
 
-    stand-alone client application with user interface - running on development PC
-    minimal, headless remote component - embedded in debuggee on target device, hooked into Lua runtime
+* stand-alone client application with user interface - running on development PC
+* minimal, headless remote component - embedded in debuggee on target device, hooked into Lua runtime
 
 communication happens over TCP and UDP.
 
 
 # Demo
 
-You'll find a complete *fancy* description and [screencast](http://www.laufenberg.ch/ddt3/)
+You'll find a complete *fancy* description and screencast over at [DDT3](http://www.laufenberg.ch/ddt3)
 
+
+# Purpose
+
+The point of this repository is first and foremost to showcase my programming style... as Lua has largely be supplanted by higher-level, slower languages.
 
 
 # Dependencies
 
-Client and/or Daemon components depend on:
+This project depends on:
 
 * the header-only, _non-Boost_ version of [ASIO framework](http://www.think-async.com)
 * [Lua 5.2.3](https://github.com/LuaDist/lua/tree/5.2.3)
@@ -24,7 +28,7 @@ Client and/or Daemon components depend on:
 * a commercial version of [JUCE](https://github.com/WeAreROLI/JUCE)
 
 
-# Support platforms
+# Supported platforms
 
 * Windows 7+
 * macOS 10+
