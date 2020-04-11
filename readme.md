@@ -26,6 +26,7 @@ This project depends on:
 * [Lua 5.2.3](https://github.com/LuaDist/lua/tree/5.2.3)
 * a customized/patched version of [wxWidgets](https://github.com/wxWidgets/wxWidgets/tree/WX_3_0_3_BRANCH)
 * a commercial version of [JUCE](https://github.com/WeAreROLI/JUCE)
+* system-paclaged (binary) libraries of [Cairo](https://www.cairographics.org)
 
 
 # Supported platforms
@@ -38,13 +39,18 @@ This project depends on:
 
 # Build instructions
 
-The projects won't currently build given the heavy patching of underlying frameworks, especially wxWidgets.
+The projects won't currently buildm given the heavy patching of underlying frameworks, especially on wxWidgets.
 
 ```
 git clone https://github.com/kluete/ddt3.git
 cd ddt3
 git submodule update --init
 ./build.sh
+
+***
+git clone git://anongit.freedesktop.org/git/cairo
+git clone git://anongit.freedesktop.org/git/pixman.git
+
 ```
 
 # Invocation
