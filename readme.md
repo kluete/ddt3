@@ -12,12 +12,12 @@ communication happens over TCP/IP.
 Client and/or Daemon components depend on:
 
 * the header-only, _non-Boost_ version of [ASIO framework](http://www.think-async.com)
-* [Lua 5.2.3](https://github.com/LuaDist/lua/tree/lua-5.2)
-* a customized (patched) version of [wxWidgets](https://www.wxwidgets.org)
-* a commercial version of [wxWidgets](https://www.wxwidgets.org)
+* [Lua 5.2.3](https://github.com/LuaDist/lua/tree/5.2.3)
+* a customized/patched version of [wxWidgets](https://www.wxwidgets.org)
+* a commercial version of [JUCE](https://www.wxwidgets.org)
 
 
-# Platforms
+# Support platforms
 
 * Windows 7+
 * macOS 10+
@@ -35,6 +35,7 @@ git submodule update --init
 ```
 
 # Invocation
+
 
 # Famous last words
 
