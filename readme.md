@@ -13,9 +13,9 @@ communication happens over TCP and UDP.
 You'll find a complete *fancy* description and screencast over at [DDT3](http://www.laufenberg.ch/ddt3)
 
 
-# Purpose
+# But... Franck... Why???
 
-The point of this repository is first and foremost to showcase my programming style... as Lua has largely be supplanted by higher-level, slower languages.
+The point of this repository is first and foremost to showcase my programming style... as Lua has largely been supplanted by higher-level, slower languages.
 
 
 # Dependencies
