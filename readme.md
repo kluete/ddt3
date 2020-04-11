@@ -5,7 +5,14 @@ DDT3 is a remote debugger for the Lua language, written in ISO C++14, made of tw
     stand-alone client application with user interface - running on development PC
     minimal, headless remote component - embedded in debuggee on target device, hooked into Lua runtime
 
-communication happens over TCP/IP.
+communication happens over TCP and UDP.
+
+
+# Demo
+
+You'll find a complete *fancy* description and [screencast](http://www.laufenberg.ch/ddt3/)
+
+
 
 # Dependencies
 
