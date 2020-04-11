@@ -1,0 +1,12 @@
+Debug/*
+.Debug/*
+*.codelite/*
+client.mk
+daemon.mk
+client.txt
+daemon.txt
+*.bin
+Makefile
+
+
+
