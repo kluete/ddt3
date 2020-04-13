@@ -22,11 +22,20 @@ The point of this repository is first and foremost to showcase my programming st
 
 This project depends on:
 
-* the header-only, _non-Boost_ version of [ASIO framework](http://www.think-async.com)
+# repos
+
 * [Lua 5.2.3](https://github.com/LuaDist/lua/tree/5.2.3)
-* a customized/patched version of [wxWidgets](https://github.com/wxWidgets/wxWidgets/tree/WX_3_0_3_BRANCH)
-* a commercial version of [JUCE](https://github.com/WeAreROLI/JUCE)
-* system-paclaged (binary) libraries of [Cairo](https://www.cairographics.org)
+* a forket, customized version 3.0.3 of [wxWidgets](https://github.com/kluete/wxWidgets.git)
+* a commercial version of [JUCE](https://github.com/WeAreROLI/JUCE.git)							// used in ddt or just lxMusic ?
+
+* the header-only, _non-Boost_ version of [ASIO framework](http://www.think-async.com)
+* my own [utilities](https://github.com/kluete/lxUtils.git)
+* unit test framework [Catch](https://github.com/philsquared/Catch.git)
+
+## system-packaged libs																// no longer x-platform!!!
+* [Cairo](https://www.cairographics.org)
+* font rendering SDK [freetype](https://git.sv.gnu.org/freetype/freetype2.git)
+* apt-get install libcrypto++-dev													// used for what?? hash?
 
 
 # Supported platforms
@@ -37,9 +46,20 @@ This project depends on:
 * Linux kernel 3.x with Gtk 2/3 
 
 
+# 3rd PARTY
+
+```
+git submodule add https://github.com/kluete/wxWidgets.git ./thirdparty/wxWidgets
+git submodule add https://github.com/LuaDist/lua/tree/5.2.3 ./thirdparty/lua
+
+```
+
 # Build instructions
 
 The projects won't currently build, given the heavy patching of underlying frameworks, especially on wxWidgets.
+
+
+
 
 ```
 git clone https://github.com/kluete/ddt3.git
