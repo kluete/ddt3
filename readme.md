@@ -8,7 +8,7 @@ DDT3 is a remote debugger for the Lua language, written in ISO C++14. You'll fin
 This repository's purpose is first and foremost to showcase my programming style... as Lua has largely been supplanted by higher-level (slower) languages.
 
 
-# Build instructions
+# No build instructions
 
-The projects is no longer in a buildable state, given the many dependencies and heavy patching of underlying frameworks, especially on wxWidgets.
+This projects is no longer in a buildable state, given its many dependencies and heavy forking of some underlying frameworks, especially wxWidgets
 
