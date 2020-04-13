@@ -34,8 +34,8 @@ This project depends on:
 
 ## system-packaged libs																// no longer x-platform!!!
 * [Cairo](https://www.cairographics.org)
-* font rendering SDK [freetype](https://git.sv.gnu.org/freetype/freetype2.git)
-* apt-get install libcrypto++-dev													// used for what?? hash?
+* font rendering SDK [freetype2](https://git.sv.gnu.org/freetype/freetype2.git)
+* apt-get install libcrypto++-dev													// used for hash?
 
 
 # Supported platforms
@@ -50,7 +50,11 @@ This project depends on:
 
 ```
 git submodule add https://github.com/kluete/wxWidgets.git ./thirdparty/wxWidgets
-git submodule add https://github.com/LuaDist/lua/tree/5.2.3 ./thirdparty/lua
+git submodule add https://github.com/LuaDist/lua.git ./thirdparty/lua				# git checkout 5.2.3
+cd thirdparty/lua/
+git checkout lua-5.3
+cd -
+git submodule add https://github.com/chriskohlhoff/asio.git ./thirdparty/asio
 
 ```
 

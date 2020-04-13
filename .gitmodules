@@ -1,0 +1,9 @@
+[submodule "thirdparty/wxWidgets"]
+	path = thirdparty/wxWidgets
+	url = https://github.com/kluete/wxWidgets.git
+[submodule "thirdparty/lua"]
+	path = thirdparty/lua
+	url = https://github.com/LuaDist/lua.git
+[submodule "thirdparty/asio"]
+	path = thirdparty/asio
+	url = https://github.com/chriskohlhoff/asio.git
